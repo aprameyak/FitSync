@@ -1,0 +1,21 @@
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+}
+
+h1, h2 {
+  margin: 0;
+}
+
+ul {
+  padding: 0;
+  list-style-type: none;
+}
+
+input {
+  margin: 4px 0;
+}
+
+button {
+  margin-top: 8px;
+}
