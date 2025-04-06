@@ -31,7 +31,7 @@ export const WorkoutSection = ({ userId }: WorkoutSectionProps) => {
         } else {
           setWorkouts([]); 
         }
-      } catch (err) {
+      } catch (err: any) {
         if (err.response?.status === 404) {
           setWorkouts([]); 
         } else {

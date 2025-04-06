@@ -23,8 +23,6 @@ function Home() {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [nutritionEntries, setNutritionEntries] = useState<NutritionEntry[]>([]);
   const [inputMessage, setInputMessage] = useState("");
-  const [isWorkoutModalOpen, setIsWorkoutModalOpen] = useState(false);
-  const [isMealModalOpen, setIsMealModalOpen] = useState(false);
 
   useEffect(() => {
     if (isLoaded && user) {
@@ -47,7 +45,7 @@ function Home() {
       setProfile(profileData);
       setWorkouts(workoutsData);
       setNutritionEntries(nutritionData);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching user data:", error);
       setError("Failed to load user data. Please try again.");
     }
@@ -59,9 +57,9 @@ function Home() {
     setMessages((prev) => [...prev, { role: "user", content: message }]);
     setInputMessage("");
     try {
-      const response = await chatApi.sendMessage(message, user.id);
+      const response = await chatApi.sendMessage(message, messages);
       setMessages((prev) => [...prev, { role: "assistant", content: response }]);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error sending message:", error);
       setMessages((prev) => [
         ...prev,
@@ -115,24 +113,24 @@ function Home() {
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <WorkoutSection userId={user?.id || ""} workouts={workouts} onAddWorkout={() => setIsWorkoutModalOpen(true)} />
+                <WorkoutSection 
+                  userId={user?.id || ""} 
+                />
               </Grid>
 
               <Grid item xs={12} md={6}>
                 <NutritionSection
                   userId={user?.id || ""}
-                  nutritionEntries={nutritionEntries}
-                  onAddMeal={() => setIsMealModalOpen(true)}
                 />
               </Grid>
 
               <Grid item xs={12}>
                 <ChatSection
-                  userId={user?.id || ""}
                   messages={messages}
                   inputMessage={inputMessage}
                   onInputChange={setInputMessage}
                   onSendMessage={handleSendMessage}
+                  isLoading={isLoading}
                 />
               </Grid>
             </Grid>
