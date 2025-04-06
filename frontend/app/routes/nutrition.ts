@@ -1,6 +1,9 @@
   export const nutritionApi = {
     fetchNutrition: async (userId: string) => {
       const response = await fetch(`/api/nutrition/${userId}`);
+      if (response.status === 404) {
+        return [];
+      }
       if (!response.ok) throw new Error('Failed to fetch nutrition');
       return response.json();
     },
