@@ -1,6 +1,9 @@
  export const workoutApi = {
     fetchWorkouts: async (userId: string) => {
       const response = await fetch(`/api/fitness/${userId}`);
+      if (response.status === 404) {
+        return [];
+      }
       if (!response.ok) throw new Error('Failed to fetch workouts');
       return response.json();
     },

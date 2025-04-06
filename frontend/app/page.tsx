@@ -1,19 +1,18 @@
 "use client";
-import { useUser } from "@clerk/nextjs";
-import { Box, CircularProgress, Button, Typography, Grid, Paper, Alert, TextField } from "@mui/material";
+import { ClerkProvider, SignedIn, SignedOut, useUser, SignIn } from "@clerk/nextjs";
+import { Box, CircularProgress, Button, Typography, Grid, Alert } from "@mui/material";
 import { useState, useEffect } from "react";
-import { Modal } from "./components/modal";
 import { ProfileSection } from "./components/profile";
 import { WorkoutSection } from "./components/workout";
 import { NutritionSection } from "./components/nutrition";
 import { ChatSection } from "./components/chat";
-import { profileApi } from "./apis/profile";
-import { workoutApi } from "./apis/workouts"; 
-import { nutritionApi } from "./apis/nutrition";
-import { chatApi } from "./apis/chat";
+import { profileApi } from "./routes/profile";
+import { workoutApi } from "./routes/workouts";
+import { nutritionApi } from "./routes/nutrition";
+import { chatApi } from "./routes/chat";
 import { Profile, Workout, NutritionEntry, ChatMessage } from "./types";
 
-export default function Home() {
+function Home() {
   const { user, isLoaded } = useUser();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,25 +25,14 @@ export default function Home() {
   const [inputMessage, setInputMessage] = useState("");
   const [isWorkoutModalOpen, setIsWorkoutModalOpen] = useState(false);
   const [isMealModalOpen, setIsMealModalOpen] = useState(false);
-  const [newWorkout, setNewWorkout] = useState<Workout>({
-    name: '',
-    sets: 0,
-    reps: 0,
-    weight: 0
-  });
-  const [newMeal, setNewMeal] = useState<NutritionEntry>({
-    food: '',
-    calories: 0,
-    protein: 0,
-    carbs: 0,
-    fat: 0
-  });
 
   useEffect(() => {
-    if (user) {
+    if (isLoaded && user) {
       fetchUserData();
+    } else if (isLoaded && !user) {
+      setIsLoading(false);
     }
-  }, [user]);
+  }, [isLoaded, user]);
 
   const fetchUserData = async () => {
     if (!user) return;
@@ -82,76 +70,65 @@ export default function Home() {
     }
   };
 
-  const handleAddWorkout = async () => {
-    if (!user) return;
-    try {
-      await workoutApi.addWorkout(newWorkout, user.id);
-      await fetchUserData();
-      setIsWorkoutModalOpen(false);
-      setNewWorkout({ name: '', sets: 0, reps: 0, weight: 0 });
-    } catch (error) {
-      console.error("Error adding workout:", error);
-      setError("Failed to add workout. Please try again.");
-    }
-  };
-
-  const handleAddMeal = async () => {
-    if (!user) return;
-    try {
-      await nutritionApi.addNutrition(newMeal, user.id);
-      await fetchUserData();
-      setIsMealModalOpen(false);
-      setNewMeal({ food: '', calories: 0, protein: 0, carbs: 0, fat: 0 });
-    } catch (error) {
-      console.error("Error adding meal:", error);
-      setError("Failed to add meal. Please try again.");
-    }
-  };
-
   return (
     <Box sx={{ padding: 4, minHeight: "100vh", backgroundColor: "#f7fafc" }}>
-      {!isLoaded ? (
-        <CircularProgress />
-      ) : (
-        <>
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
-            <Typography variant="h4" color="primary">
-              FitSync
-            </Typography>
+      <SignedOut>
+        <Box
+          width="100vw"
+          height="100vh"
+          display="flex"
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="center"
+        >
+          <Typography variant="h5" color="textSecondary" gutterBottom>
+            Welcome to FitSync! Please sign in to continue.
+          </Typography>
+          <Box width="100%" maxWidth="400px">
+            <SignIn routing="path" path="/" />
           </Box>
-          
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
+        </Box>
+      </SignedOut>
 
-          {isLoading ? (
-            <Box display="flex" justifyContent="center" alignItems="center" height="50vh">
-              <CircularProgress />
+      <SignedIn>
+        {!isLoaded || isLoading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+            <CircularProgress />
+          </Box>
+        ) : (
+          <>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
+              <Typography variant="h4" color="primary">
+                FitSync
+              </Typography>
             </Box>
-          ) : (
+
+            {error && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {error}
+              </Alert>
+            )}
+
             <Grid container spacing={4}>
               <Grid item xs={12}>
-                <ProfileSection profile={profile} />
+                <ProfileSection userId={user?.id || ""} />
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <WorkoutSection 
-                  workouts={workouts} 
-                  onAddWorkout={() => setIsWorkoutModalOpen(true)} 
-                />
+                <WorkoutSection userId={user?.id || ""} workouts={workouts} onAddWorkout={() => setIsWorkoutModalOpen(true)} />
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <NutritionSection 
-                  nutritionEntries={nutritionEntries} 
-                  onAddMeal={() => setIsMealModalOpen(true)} 
+                <NutritionSection
+                  userId={user?.id || ""}
+                  nutritionEntries={nutritionEntries}
+                  onAddMeal={() => setIsMealModalOpen(true)}
                 />
               </Grid>
 
               <Grid item xs={12}>
-                <ChatSection 
+                <ChatSection
+                  userId={user?.id || ""}
                   messages={messages}
                   inputMessage={inputMessage}
                   onInputChange={setInputMessage}
@@ -159,102 +136,17 @@ export default function Home() {
                 />
               </Grid>
             </Grid>
-          )}
-
-          {/* Workout Modal */}
-          <Modal
-            isOpen={isWorkoutModalOpen}
-            onClose={() => setIsWorkoutModalOpen(false)}
-            title="Add New Workout"
-          >
-            <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <TextField
-                label="Exercise Name"
-                value={newWorkout.name}
-                onChange={(e) => setNewWorkout({ ...newWorkout, name: e.target.value })}
-                fullWidth
-              />
-              <TextField
-                label="Sets"
-                type="number"
-                value={newWorkout.sets}
-                onChange={(e) => setNewWorkout({ ...newWorkout, sets: Number(e.target.value) })}
-                fullWidth
-              />
-              <TextField
-                label="Reps"
-                type="number"
-                value={newWorkout.reps}
-                onChange={(e) => setNewWorkout({ ...newWorkout, reps: Number(e.target.value) })}
-                fullWidth
-              />
-              <TextField
-                label="Weight (kg)"
-                type="number"
-                value={newWorkout.weight}
-                onChange={(e) => setNewWorkout({ ...newWorkout, weight: Number(e.target.value) })}
-                fullWidth
-              />
-              <Button
-                variant="contained"
-                onClick={handleAddWorkout}
-              >
-                Save Workout
-              </Button>
-            </Box>
-          </Modal>
-
-          {/* Meal Modal */}
-          <Modal
-            isOpen={isMealModalOpen}
-            onClose={() => setIsMealModalOpen(false)}
-            title="Add New Meal"
-          >
-            <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <TextField
-                label="Food Name"
-                value={newMeal.food}
-                onChange={(e) => setNewMeal({ ...newMeal, food: e.target.value })}
-                fullWidth
-              />
-              <TextField
-                label="Calories"
-                type="number"
-                value={newMeal.calories}
-                onChange={(e) => setNewMeal({ ...newMeal, calories: Number(e.target.value) })}
-                fullWidth
-              />
-              <TextField
-                label="Protein (g)"
-                type="number"
-                value={newMeal.protein}
-                onChange={(e) => setNewMeal({ ...newMeal, protein: Number(e.target.value) })}
-                fullWidth
-              />
-              <TextField
-                label="Carbs (g)"
-                type="number"
-                value={newMeal.carbs}
-                onChange={(e) => setNewMeal({ ...newMeal, carbs: Number(e.target.value) })}
-                fullWidth
-              />
-              <TextField
-                label="Fat (g)"
-                type="number"
-                value={newMeal.fat}
-                onChange={(e) => setNewMeal({ ...newMeal, fat: Number(e.target.value) })}
-                fullWidth
-              />
-              <Button
-                variant="contained"
-                onClick={handleAddMeal}
-              >
-                Save Meal
-              </Button>
-            </Box>
-          </Modal>
-        </>
-      )}
+          </>
+        )}
+      </SignedIn>
     </Box>
+  );
+}
+
+export default function App() {
+  return (
+    <ClerkProvider>
+      <Home />
+    </ClerkProvider>
   );
 }

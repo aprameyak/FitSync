@@ -25,4 +25,7 @@ export interface Profile {
     role: "user" | "assistant";
     content: string;
   }
+  export interface ChatResponse {
+    message: string;
+  }
   
