@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.24.2",
-    "@clerk/nextjs": "^6.12.5",
+    "@clerk/nextjs": "^6.13.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/material": "^6.4.8",
