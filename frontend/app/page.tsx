@@ -1,5 +1,5 @@
 "use client";
-import { ClerkProvider, SignedIn, SignedOut, useUser, SignIn } from "@clerk/nextjs";
+import { SignedIn, SignedOut, useUser, SignIn } from "@clerk/nextjs";
 import { Box, CircularProgress, Button, Typography, Grid, Alert } from "@mui/material";
 import { useState, useEffect } from "react";
 import { ProfileSection } from "./components/profile";
@@ -17,7 +17,7 @@ function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: "assistant", content: "Hello! How can I help you with your fitness journey today?" },
+    { role: "assistant", content: "Hello! How can I help you with your fitness journey today?" }
   ]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [workouts, setWorkouts] = useState<Workout[]>([]);
@@ -40,7 +40,7 @@ function Home() {
       const [profileData, workoutsData, nutritionData] = await Promise.all([
         profileApi.fetchProfile(user.id),
         workoutApi.fetchWorkouts(user.id),
-        nutritionApi.fetchNutrition(user.id),
+        nutritionApi.fetchNutrition(user.id)
       ]);
       setProfile(profileData);
       setWorkouts(workoutsData);
@@ -63,7 +63,7 @@ function Home() {
       console.error("Error sending message:", error);
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "Sorry, I encountered an error. Please try again." },
+        { role: "assistant", content: "Sorry, I encountered an error. Please try again." }
       ]);
     }
   };
@@ -71,14 +71,7 @@ function Home() {
   return (
     <Box sx={{ padding: 4, minHeight: "100vh", backgroundColor: "#f7fafc" }}>
       <SignedOut>
-        <Box
-          width="100vw"
-          height="100vh"
-          display="flex"
-          flexDirection="column"
-          justifyContent="center"
-          alignItems="center"
-        >
+        <Box width="100vw" height="100vh" display="flex" flexDirection="column" justifyContent="center" alignItems="center">
           <Typography variant="h5" color="textSecondary" gutterBottom>
             Welcome to FitSync! Please sign in to continue.
           </Typography>
@@ -87,7 +80,6 @@ function Home() {
           </Box>
         </Box>
       </SignedOut>
-
       <SignedIn>
         {!isLoaded || isLoading ? (
           <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
@@ -100,30 +92,21 @@ function Home() {
                 FitSync
               </Typography>
             </Box>
-
             {error && (
               <Alert severity="error" sx={{ mb: 2 }}>
                 {error}
               </Alert>
             )}
-
             <Grid container spacing={4}>
               <Grid item xs={12}>
                 <ProfileSection userId={user?.id || ""} />
               </Grid>
-
               <Grid item xs={12} md={6}>
-                <WorkoutSection 
-                  userId={user?.id || ""} 
-                />
+                <WorkoutSection userId={user?.id || ""} />
               </Grid>
-
               <Grid item xs={12} md={6}>
-                <NutritionSection
-                  userId={user?.id || ""}
-                />
+                <NutritionSection userId={user?.id || ""} />
               </Grid>
-
               <Grid item xs={12}>
                 <ChatSection
                   messages={messages}
@@ -141,10 +124,6 @@ function Home() {
   );
 }
 
-export default function App() {
-  return (
-    <ClerkProvider>
-      <Home />
-    </ClerkProvider>
-  );
+export default function Page() {
+  return <Home />;
 }
