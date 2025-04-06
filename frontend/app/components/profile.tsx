@@ -7,14 +7,21 @@ interface ProfileSectionProps {
   userId: string;
 }
 
+interface ProfileFormData {
+  weight: string;
+  height: string;
+  age: string;
+  gender: string;
+}
+
 export const ProfileSection: React.FC<ProfileSectionProps> = ({ userId }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState<Profile>({
-    weight: 0,
-    height: 0,
-    age: 0,
-    gender: 0,
+  const [formData, setFormData] = useState<ProfileFormData>({
+    weight: "0",
+    height: "0",
+    age: "0",
+    gender: "0",
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -27,10 +34,10 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({ userId }) => {
         const response = await axios.get(`/api/profile/${userId}`);
         setProfile(response.data);
         setFormData({
-          weight: response.data.weight ?? 0,
-          height: response.data.height ?? 0,
-          age: response.data.age ?? 0,
-          gender: response.data.gender ?? 0,
+          weight: response.data.weight?.toString() ?? "0",
+          height: response.data.height?.toString() ?? "0",
+          age: response.data.age?.toString() ?? "0",
+          gender: response.data.gender?.toString() ?? "0",
         });
       } catch (err: any) {
         if (err.response?.status === 404) {
@@ -49,33 +56,40 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({ userId }) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: parseFloat(value) || 0,
+      [name]: value,
     }));
   };
 
   const handleSave = async () => {
     if (
-      formData.weight === undefined ||
-      formData.height === undefined ||
-      formData.age === undefined ||
-      formData.gender === undefined
+      !formData.weight ||
+      !formData.height ||
+      !formData.age ||
+      !formData.gender
     ) {
       setError("All fields are required.");
       return;
     }
 
+    const numericFormData = {
+      weight: parseFloat(formData.weight),
+      height: parseFloat(formData.height),
+      age: parseFloat(formData.age),
+      gender: parseFloat(formData.gender),
+    };
+
     setError(null);
     try {
       const response = profile
-        ? await axios.patch(`/api/profile/${userId}`, formData)
-        : await axios.post(`/api/profile`, { ...formData, userId });
+        ? await axios.patch(`/api/profile/${userId}`, numericFormData)
+        : await axios.post(`/api/profile`, { ...numericFormData, userId });
       const updatedProfile = profile ? response.data : response.data.profile;
       setProfile(updatedProfile);
       setFormData({
-        weight: updatedProfile.weight ?? 0,
-        height: updatedProfile.height ?? 0,
-        age: updatedProfile.age ?? 0,
-        gender: updatedProfile.gender ?? 0,
+        weight: updatedProfile.weight?.toString() ?? "0",
+        height: updatedProfile.height?.toString() ?? "0",
+        age: updatedProfile.age?.toString() ?? "0",
+        gender: updatedProfile.gender?.toString() ?? "0",
       });
       setIsEditing(false);
     } catch {
@@ -127,7 +141,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({ userId }) => {
             label="Weight (kg)"
             name="weight"
             type="number"
-            value={formData.weight || 0}
+            value={formData.weight}
             onChange={handleInputChange}
             fullWidth
           />
@@ -135,7 +149,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({ userId }) => {
             label="Height (cm)"
             name="height"
             type="number"
-            value={formData.height || 0}
+            value={formData.height}
             onChange={handleInputChange}
             fullWidth
           />
@@ -143,7 +157,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({ userId }) => {
             label="Age"
             name="age"
             type="number"
-            value={formData.age || 0}
+            value={formData.age}
             onChange={handleInputChange}
             fullWidth
           />
@@ -151,7 +165,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({ userId }) => {
             label="Gender (0 = Male, 1 = Female, 2 = Other)"
             name="gender"
             type="number"
-            value={formData.gender || 0}
+            value={formData.gender}
             onChange={handleInputChange}
             fullWidth
           />

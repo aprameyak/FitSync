@@ -31,7 +31,7 @@ export const NutritionSection = ({ userId }: NutritionSectionProps) => {
         } else {
           setNutritionEntries([]);
         }
-      } catch (err) {
+      } catch (err: any) {
         if (err.response?.status === 404) {
           setNutritionEntries([]);
         } else {
