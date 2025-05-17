@@ -18,6 +18,25 @@ const nutritionSchema = new Schema({
     calories: {
         type: Number,
         required: true
+    },
+    protein: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    carbs: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    fat: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    mealType: {
+        type: String,
+        required: false
     }
 }, {timestamps: true})
 

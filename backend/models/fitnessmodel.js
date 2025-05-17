@@ -7,17 +7,25 @@ const fitnessSchema = new Schema({
         type: String,
         required: true
     },
-    excercise: {
+    exercise: {
         type: String,
         required: true
     },
-    loadandreptitions: {
-        type: String,
-        required: true
-    },
-    calories: {
+    sets: {
         type: Number,
         required: true
+    },
+    reps: {
+        type: Number,
+        required: true
+    },
+    weight: {
+        type: Number,
+        required: true
+    },
+    pr: {
+        type: Boolean,
+        default: false
     }
 }, {timestamps: true})
 

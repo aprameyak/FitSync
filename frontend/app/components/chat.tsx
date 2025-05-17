@@ -18,6 +18,7 @@ export const ChatSection = ({
   isLoading = false,
 }: ChatSectionProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [isLoadingState, setIsLoadingState] = useState(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -29,8 +30,10 @@ export const ChatSection = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (inputMessage.trim() && !isLoading) {
+    if (inputMessage.trim() && !isLoadingState) {
+      setIsLoadingState(true);
       onSendMessage(inputMessage);
+      setIsLoadingState(false);
     }
   };
 
@@ -83,7 +86,7 @@ export const ChatSection = ({
           </Box>
         ))}
         <div ref={messagesEndRef} />
-        {isLoading && (
+        {isLoadingState && (
           <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
             <CircularProgress size={24} />
           </Box>
@@ -106,7 +109,7 @@ export const ChatSection = ({
           placeholder="Type your message..."
           variant="outlined"
           size="small"
-          disabled={isLoading}
+          disabled={isLoadingState}
           multiline
           maxRows={4}
           sx={{
@@ -115,8 +118,8 @@ export const ChatSection = ({
             },
           }}
         />
-        <Button type="submit" variant="contained" disabled={!inputMessage.trim() || isLoading}>
-          Send
+        <Button type="submit" variant="contained" disabled={!inputMessage.trim() || isLoadingState}>
+          {isLoadingState ? <CircularProgress size={24} /> : "Send"}
         </Button>
       </Box>
     </Paper>
