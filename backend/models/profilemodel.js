@@ -23,6 +23,16 @@ const profileSchema = new Schema({
     gender: {
         type: Number,
         required: true
+    },
+    activityLevel: {
+        type: String,
+        required: false,
+        enum: ['sedentary', 'light', 'moderate', 'active', 'very active']
+    },
+    goal: {
+        type: String,
+        required: false,
+        enum: ['lose', 'maintain', 'gain']
     }
 }, {timestamps: true})
 
