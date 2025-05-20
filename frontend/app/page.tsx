@@ -1,5 +1,4 @@
 "use client";
-import { SignedIn, SignedOut, useUser, SignIn } from "@clerk/nextjs";
 import { Box, CircularProgress, Button, Typography, Grid, Alert } from "@mui/material";
 import { useState, useEffect } from "react";
 import { ProfileSection } from "./components/profile";
@@ -11,9 +10,10 @@ import { workoutApi } from "./routes/workouts";
 import { nutritionApi } from "./routes/nutrition";
 import { chatApi } from "./routes/chat";
 import { Profile, Workout, NutritionEntry, ChatMessage } from "./types";
+import { useAuth } from './context/AuthContext';
 
 function Home() {
-  const { user, isLoaded } = useUser();
+  const { user, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -25,12 +25,12 @@ function Home() {
   const [inputMessage, setInputMessage] = useState("");
 
   useEffect(() => {
-    if (isLoaded && user) {
+    if (!loading && user) {
       fetchUserData();
-    } else if (isLoaded && !user) {
+    } else if (!loading && !user) {
       setIsLoading(false);
     }
-  }, [isLoaded, user]);
+  }, [loading, user]);
 
   const fetchUserData = async () => {
     if (!user) return;
@@ -68,58 +68,59 @@ function Home() {
     }
   };
 
+  if (loading || isLoading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!user) {
+    return (
+      <Box width="100vw" height="100vh" display="flex" flexDirection="column" justifyContent="center" alignItems="center">
+        <Typography variant="h5" color="textSecondary" gutterBottom>
+          Welcome to FitSync! Please sign in to continue.
+        </Typography>
+        <Button variant="contained" color="primary" href="/sign-in">
+          Sign In
+        </Button>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ padding: 4, minHeight: "100vh", backgroundColor: "#f7fafc" }}>
-      <SignedOut>
-        <Box width="100vw" height="100vh" display="flex" flexDirection="column" justifyContent="center" alignItems="center">
-          <Typography variant="h5" color="textSecondary" gutterBottom>
-            Welcome to FitSync! Please sign in to continue.
-          </Typography>
-          <Box width="100%" maxWidth="400px">
-            <SignIn routing="path" path="/" />
-          </Box>
-        </Box>
-      </SignedOut>
-      <SignedIn>
-        {!isLoaded || isLoading ? (
-          <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-            <CircularProgress />
-          </Box>
-        ) : (
-          <>
-            <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
-              <Typography variant="h4" color="primary">
-                FitSync
-              </Typography>
-            </Box>
-            {error && (
-              <Alert severity="error" sx={{ mb: 2 }}>
-                {error}
-              </Alert>
-            )}
-            <Grid container spacing={4}>
-              <Grid item xs={12}>
-                <ProfileSection userId={user?.id || ""} />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <WorkoutSection userId={user?.id || ""} />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <NutritionSection userId={user?.id || ""} />
-              </Grid>
-              <Grid item xs={12}>
-                <ChatSection
-                  messages={messages}
-                  inputMessage={inputMessage}
-                  onInputChange={setInputMessage}
-                  onSendMessage={handleSendMessage}
-                  isLoading={isLoading}
-                />
-              </Grid>
-            </Grid>
-          </>
-        )}
-      </SignedIn>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
+        <Typography variant="h4" color="primary">
+          FitSync
+        </Typography>
+      </Box>
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+      <Grid container spacing={4}>
+        <Grid item xs={12}>
+          <ProfileSection userId={user.id} />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <WorkoutSection userId={user.id} />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <NutritionSection userId={user.id} />
+        </Grid>
+        <Grid item xs={12}>
+          <ChatSection
+            messages={messages}
+            inputMessage={inputMessage}
+            onInputChange={setInputMessage}
+            onSendMessage={handleSendMessage}
+            isLoading={isLoading}
+          />
+        </Grid>
+      </Grid>
     </Box>
   );
 }
