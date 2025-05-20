@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Roboto_Mono } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from './context/AuthContext';
+import { ClerkProvider } from '@clerk/nextjs';
 
 const inter = Inter({
   variable: "--font-inter",
@@ -19,12 +19,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} ${robotoMono.className} antialiased`}>
-        <AuthProvider>
+    <ClerkProvider>
+      <html lang="en">
+        <body className={`${inter.className} ${robotoMono.className} antialiased`}>
           {children}
-        </AuthProvider>
-      </body>
-    </html>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
