@@ -7,62 +7,76 @@ import Cookies from 'js-cookie';
 interface User {
     id: string;
     email: string;
+    name: string;
 }
 
 interface AuthContextType {
     user: User | null;
+    loading: boolean;
+    error: string | null;
     login: (email: string, password: string) => Promise<void>;
-    signup: (email: string, password: string) => Promise<void>;
+    signup: (email: string, password: string, name: string) => Promise<void>;
     logout: () => void;
-    isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const token = Cookies.get('token');
-        if (token) {
-            // Verify token and get user info
-            axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify`, {
-                headers: { Authorization: `Bearer ${token}` }
-            })
-            .then(response => {
-                setUser(response.data.user);
-            })
-            .catch(() => {
-                Cookies.remove('token');
-                setUser(null);
-            })
-            .finally(() => {
-                setIsLoading(false);
-            });
-        } else {
-            setIsLoading(false);
-        }
+        checkAuth();
     }, []);
 
-    const login = async (email: string, password: string) => {
-        const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
-            email,
-            password
-        });
-        const { token, user } = response.data;
-        Cookies.set('token', token, { expires: 7 }); // Token expires in 7 days
-        setUser(user);
+    const checkAuth = async () => {
+        const token = Cookies.get('token');
+        if (token) {
+            try {
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setUser(response.data);
+            } catch (err) {
+                Cookies.remove('token');
+                setUser(null);
+            }
+        }
+        setLoading(false);
     };
 
-    const signup = async (email: string, password: string) => {
-        const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
-            email,
-            password
-        });
-        const { token, user } = response.data;
-        Cookies.set('token', token, { expires: 7 }); // Token expires in 7 days
-        setUser(user);
+    const login = async (email: string, password: string) => {
+        try {
+            setError(null);
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
+                email,
+                password
+            });
+            const { token, user } = response.data;
+            Cookies.set('token', token, { expires: 7 }); // 7 days expiry
+            setUser(user);
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Login failed');
+            throw err;
+        }
+    };
+
+    const signup = async (email: string, password: string, name: string) => {
+        try {
+            setError(null);
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/signup`, {
+                email,
+                password,
+                name
+            });
+            const { token, user } = response.data;
+            Cookies.set('token', token, { expires: 7 });
+            setUser(user);
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Signup failed');
+            throw err;
+        }
     };
 
     const logout = () => {
@@ -71,7 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, signup, logout, isLoading }}>
+        <AuthContext.Provider value={{ user, loading, error, login, signup, logout }}>
             {children}
         </AuthContext.Provider>
     );
