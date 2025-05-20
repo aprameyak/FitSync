@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "env": {
+    "NEXT_PUBLIC_API_URL": "https://fitsync-backend.onrender.com"
+  },
+  "buildCommand": "next build",
+  "outputDirectory": ".next"
+} 
