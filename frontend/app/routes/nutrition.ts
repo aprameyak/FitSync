@@ -1,19 +1,18 @@
+import axios from "axios";
+import { NutritionEntry } from "../types";
+
 export const nutritionApi = {
-  fetchNutrition: async (userId: string) => {
-    const response = await fetch(`${process.env.BACKEND_URL}/api/nutrition/${userId}`);
-    if (response.status === 404) {
-      return [];
-    }
-    if (!response.ok) throw new Error("Failed to fetch nutrition");
-    return response.json();
+  fetchNutrition: async (userId: string): Promise<NutritionEntry[]> => {
+    const response = await axios.get(`/api/nutrition/${userId}`);
+    return response.data;
   },
-  addNutrition: async (nutritionData: any, userId: string) => {
-    const response = await fetch(`${process.env.BACKEND_URL}/api/nutrition`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...nutritionData, userId })
-    });
-    if (!response.ok) throw new Error("Failed to add nutrition");
-    return response.json();
+
+  addNutritionEntry: async (userId: string, nutritionData: Omit<NutritionEntry, "id" | "userId">): Promise<NutritionEntry> => {
+    const response = await axios.post("/api/nutrition", { ...nutritionData, userId });
+    return response.data;
+  },
+
+  deleteNutritionEntry: async (id: string): Promise<void> => {
+    await axios.delete(`/api/nutrition/${id}`);
   }
 };
