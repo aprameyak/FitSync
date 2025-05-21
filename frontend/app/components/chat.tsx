@@ -1,5 +1,4 @@
-import { Box, Button, Typography, Paper, TextField, CircularProgress } from "@mui/material";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, ChangeEvent } from "react";
 import { ChatMessage } from "../types";
 
 interface ChatSectionProps {
@@ -38,90 +37,57 @@ export const ChatSection = ({
   };
 
   return (
-    <Paper
-      elevation={2}
-      sx={{
-        p: 3,
-        borderRadius: 2,
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      <Typography variant="h6" gutterBottom>
-        AI Fitness Coach
-      </Typography>
+    <div className="p-6 rounded-lg shadow-md h-full flex flex-col bg-white">
+      <h2 className="text-xl font-semibold mb-4">AI Fitness Coach</h2>
 
-      <Box
-        sx={{
-          flexGrow: 1,
-          overflowY: "auto",
-          mb: 2,
-          p: 2,
-          backgroundColor: "#f5f5f5",
-          borderRadius: 1,
-          minHeight: "400px",
-        }}
-      >
+      <div className="flex-grow overflow-y-auto mb-4 p-4 bg-gray-50 rounded min-h-[400px]">
         {messages.map((message, index) => (
-          <Box
+          <div
             key={index}
-            sx={{
-              mb: 2,
-              display: "flex",
-              justifyContent: message.role === "user" ? "flex-end" : "flex-start",
-            }}
+            className={`mb-4 flex ${
+              message.role === "user" ? "justify-end" : "justify-start"
+            }`}
           >
-            <Paper
-              sx={{
-                p: 2,
-                maxWidth: "70%",
-                backgroundColor: message.role === "user" ? "primary.main" : "white",
-                color: message.role === "user" ? "white" : "text.primary",
-                wordBreak: "break-word",
-              }}
+            <div
+              className={`p-4 max-w-[70%] rounded-lg ${
+                message.role === "user"
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-gray-800"
+              }`}
             >
-              <Typography>{message.content}</Typography>
-            </Paper>
-          </Box>
+              <p className="break-words">{message.content}</p>
+            </div>
+          </div>
         ))}
         <div ref={messagesEndRef} />
         {isLoadingState && (
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-            <CircularProgress size={24} />
-          </Box>
+          <div className="flex justify-center mt-4">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+          </div>
         )}
-      </Box>
+      </div>
 
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
-        sx={{
-          display: "flex",
-          gap: 1,
-          mt: "auto",
-        }}
-      >
-        <TextField
-          fullWidth
+      <form onSubmit={handleSubmit} className="flex gap-2 mt-auto">
+        <textarea
           value={inputMessage}
-          onChange={(e) => onInputChange(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLTextAreaElement>) => onInputChange(e.target.value)}
           placeholder="Type your message..."
-          variant="outlined"
-          size="small"
           disabled={isLoadingState}
-          multiline
-          maxRows={4}
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              backgroundColor: "white",
-            },
-          }}
+          className="flex-grow p-2 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 max-h-[100px]"
+          rows={1}
         />
-        <Button type="submit" variant="contained" disabled={!inputMessage.trim() || isLoadingState}>
-          {isLoadingState ? <CircularProgress size={24} /> : "Send"}
-        </Button>
-      </Box>
-    </Paper>
+        <button
+          type="submit"
+          disabled={!inputMessage.trim() || isLoadingState}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isLoadingState ? (
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+          ) : (
+            "Send"
+          )}
+        </button>
+      </form>
+    </div>
   );
 };
