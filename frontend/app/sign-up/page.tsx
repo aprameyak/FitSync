@@ -2,7 +2,6 @@
 
 import { useState, ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { Box, TextField, Button, Typography, Alert } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
 
 export default function SignUp() {
@@ -24,87 +23,77 @@ export default function SignUp() {
     };
 
     return (
-        <Box
-            sx={{
-                height: '100vh',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                bgcolor: '#f7fafc'
-            }}
-        >
-            <Box
-                component="form"
-                onSubmit={handleSubmit}
-                sx={{
-                    width: '100%',
-                    maxWidth: '400px',
-                    p: 4,
-                    bgcolor: 'white',
-                    borderRadius: 2,
-                    boxShadow: 1
-                }}
-            >
-                <Typography variant="h5" component="h1" gutterBottom align="center">
+        <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50">
+            <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
+                <h1 className="text-2xl font-bold text-center mb-6">
                     Create Your FitSync Account
-                </Typography>
+                </h1>
                 
                 {error && (
-                    <Alert severity="error" sx={{ mb: 2 }}>
+                    <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-lg">
                         {error}
-                    </Alert>
+                    </div>
                 )}
 
-                <TextField
-                    fullWidth
-                    label="Name"
-                    value={name}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
-                    margin="normal"
-                    required
-                />
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                            Name
+                        </label>
+                        <input
+                            id="name"
+                            type="text"
+                            value={name}
+                            onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+                            className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required
+                        />
+                    </div>
 
-                <TextField
-                    fullWidth
-                    label="Email"
-                    type="email"
-                    value={email}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-                    margin="normal"
-                    required
-                />
+                    <div>
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                            Email
+                        </label>
+                        <input
+                            id="email"
+                            type="email"
+                            value={email}
+                            onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                            className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required
+                        />
+                    </div>
 
-                <TextField
-                    fullWidth
-                    label="Password"
-                    type="password"
-                    value={password}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-                    margin="normal"
-                    required
-                />
+                    <div>
+                        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                            Password
+                        </label>
+                        <input
+                            id="password"
+                            type="password"
+                            value={password}
+                            onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                            className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required
+                        />
+                    </div>
 
-                <Button
-                    fullWidth
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    sx={{ mt: 3 }}
-                >
-                    Sign Up
-                </Button>
+                    <button
+                        type="submit"
+                        className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    >
+                        Sign Up
+                    </button>
 
-                <Button
-                    fullWidth
-                    variant="text"
-                    color="primary"
-                    sx={{ mt: 1 }}
-                    onClick={() => router.push('/sign-in')}
-                >
-                    Already have an account? Sign In
-                </Button>
-            </Box>
-        </Box>
+                    <button
+                        type="button"
+                        onClick={() => router.push('/sign-in')}
+                        className="w-full py-2 px-4 text-blue-600 hover:text-blue-700 focus:outline-none"
+                    >
+                        Already have an account? Sign In
+                    </button>
+                </form>
+            </div>
+        </div>
     );
 } 
