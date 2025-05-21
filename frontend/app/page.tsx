@@ -1,5 +1,4 @@
 "use client";
-import { Box, CircularProgress, Button, Typography, Grid, Alert } from "@mui/material";
 import { useState, useEffect } from "react";
 import { ProfileSection } from "./components/profile";
 import { WorkoutSection } from "./components/workout";
@@ -70,48 +69,51 @@ function Home() {
 
   if (loading || isLoading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-        <CircularProgress />
-      </Box>
+      <div className="h-screen flex justify-center items-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
     );
   }
 
   if (!user) {
     return (
-      <Box width="100vw" height="100vh" display="flex" flexDirection="column" justifyContent="center" alignItems="center">
-        <Typography variant="h5" color="textSecondary" gutterBottom>
+      <div className="w-screen h-screen flex flex-col justify-center items-center">
+        <h2 className="text-xl text-gray-600 mb-4">
           Welcome to FitSync! Please sign in to continue.
-        </Typography>
-        <Button variant="contained" color="primary" href="/sign-in">
+        </h2>
+        <a
+          href="/sign-in"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
           Sign In
-        </Button>
-      </Box>
+        </a>
+      </div>
     );
   }
 
   return (
-    <Box sx={{ padding: 4, minHeight: "100vh", backgroundColor: "#f7fafc" }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
-        <Typography variant="h4" color="primary">
+    <div className="p-8 min-h-screen bg-gray-50">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-blue-600">
           FitSync
-        </Typography>
-      </Box>
+        </h1>
+      </div>
       {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
+        <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-lg">
           {error}
-        </Alert>
+        </div>
       )}
-      <Grid container spacing={4}>
-        <Grid item xs={12}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="col-span-1">
           <ProfileSection userId={user.id} />
-        </Grid>
-        <Grid item xs={12} md={6}>
+        </div>
+        <div className="col-span-1 md:col-span-2">
           <WorkoutSection userId={user.id} />
-        </Grid>
-        <Grid item xs={12} md={6}>
+        </div>
+        <div className="col-span-1 md:col-span-2">
           <NutritionSection userId={user.id} />
-        </Grid>
-        <Grid item xs={12}>
+        </div>
+        <div className="col-span-1 md:col-span-2">
           <ChatSection
             messages={messages}
             inputMessage={inputMessage}
@@ -119,9 +121,9 @@ function Home() {
             onSendMessage={handleSendMessage}
             isLoading={isLoading}
           />
-        </Grid>
-      </Grid>
-    </Box>
+        </div>
+      </div>
+    </div>
   );
 }
 

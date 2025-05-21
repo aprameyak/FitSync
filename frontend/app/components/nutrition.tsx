@@ -1,205 +1,170 @@
-import { useEffect, useState } from "react";
-import { Box, Button, Typography, Paper, CircularProgress, Alert, Grid, TextField } from "@mui/material";
-import axios from "axios";
-
-interface NutritionEntry {
-  _id: string;
-  userId: string;
-  food: string;
-  quantity: string;
-  calories: number;
-  createdAt: string;
-  protein?: number;
-  carbs?: number;
-  fat?: number;
-  mealType?: string;
-}
+import { useState, useEffect } from "react";
+import { nutritionApi } from "../routes/nutrition";
+import { NutritionEntry } from "../types";
 
 interface NutritionSectionProps {
   userId: string;
 }
 
 export const NutritionSection = ({ userId }: NutritionSectionProps) => {
-  const [nutritionEntries, setNutritionEntries] = useState<NutritionEntry[]>([]);
+  const [entries, setEntries] = useState<NutritionEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [newMeal, setNewMeal] = useState({ food: "", quantity: "", calories: 0, protein: 0, carbs: 0, fat: 0, mealType: "" });
+  const [newEntry, setNewEntry] = useState({
+    food: "",
+    calories: "",
+    protein: "",
+    carbs: "",
+    fat: "",
+    date: new Date().toISOString().split('T')[0]
+  });
 
   useEffect(() => {
-    const fetchNutritionEntries = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await axios.get(`/api/nutrition/${userId}`);
-        if (response.data && Array.isArray(response.data)) {
-          setNutritionEntries(response.data);
-        } else {
-          setNutritionEntries([]);
-        }
-      } catch (err: any) {
-        if (err.response?.status === 404) {
-          setNutritionEntries([]);
-        } else {
-          setError("Failed to fetch nutrition entries. Please try again.");
-        }
-      }
-      setIsLoading(false);
-    };
-
-    fetchNutritionEntries();
+    fetchEntries();
   }, [userId]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setNewMeal((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleAddMeal = async () => {
-    if (!newMeal.food || !newMeal.quantity || newMeal.calories <= 0) {
-      setError("All fields are required and calories must be positive.");
-      return;
-    }
-
+  const fetchEntries = async () => {
     try {
-      const response = await axios.post("/api/nutrition", { ...newMeal, userId });
-      setNutritionEntries((prev) => [...prev, response.data]);
-      setNewMeal({ food: "", quantity: "", calories: 0, protein: 0, carbs: 0, fat: 0, mealType: "" });
-    } catch (err) {
-      setError("Failed to add meal. Please try again.");
+      const data = await nutritionApi.fetchNutrition(userId);
+      setEntries(data);
+    } catch (err: any) {
+      setError(err.message || "Failed to fetch nutrition entries");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleDeleteMeal = async (id: string) => {
+  const handleAddEntry = async () => {
     try {
-      await axios.delete(`/api/nutrition/${id}`);
-      setNutritionEntries((prev) => prev.filter((entry) => entry._id !== id));
-    } catch (err) {
-      setError("Failed to delete meal. Please try again.");
+      const entry = await nutritionApi.addNutritionEntry(userId, {
+        ...newEntry,
+        calories: parseInt(newEntry.calories),
+        protein: parseFloat(newEntry.protein),
+        carbs: parseFloat(newEntry.carbs),
+        fat: parseFloat(newEntry.fat)
+      });
+      setEntries([...entries, entry]);
+      setNewEntry({
+        food: "",
+        calories: "",
+        protein: "",
+        carbs: "",
+        fat: "",
+        date: new Date().toISOString().split('T')[0]
+      });
+    } catch (err: any) {
+      setError(err.message || "Failed to add nutrition entry");
     }
   };
 
   if (isLoading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="100%">
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Alert severity="error" sx={{ mb: 2 }}>
-        {error}
-      </Alert>
+      <div className="h-full flex justify-center items-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
     );
   }
 
   return (
-    <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h6">Nutrition Tracker</Typography>
-        <Box display="flex" gap={2}>
-          <TextField
-            label="Food"
-            name="food"
-            value={newMeal.food}
-            onChange={handleInputChange}
-            size="small"
-          />
-          <TextField
-            label="Quantity"
-            name="quantity"
-            value={newMeal.quantity}
-            onChange={handleInputChange}
-            size="small"
-          />
-          <TextField
-            label="Calories"
-            name="calories"
-            type="number"
-            value={newMeal.calories}
-            onChange={handleInputChange}
-            size="small"
-          />
-          <TextField
-            label="Protein (g)"
-            name="protein"
-            type="number"
-            value={newMeal.protein}
-            onChange={handleInputChange}
-            size="small"
-          />
-          <TextField
-            label="Carbs (g)"
-            name="carbs"
-            type="number"
-            value={newMeal.carbs}
-            onChange={handleInputChange}
-            size="small"
-          />
-          <TextField
-            label="Fat (g)"
-            name="fat"
-            type="number"
-            value={newMeal.fat}
-            onChange={handleInputChange}
-            size="small"
-          />
-          <TextField
-            label="Meal Type"
-            name="mealType"
-            value={newMeal.mealType}
-            onChange={handleInputChange}
-            size="small"
-            select
-            SelectProps={{ native: true }}
-          >
-            <option value="">Select</option>
-            <option value="breakfast">Breakfast</option>
-            <option value="lunch">Lunch</option>
-            <option value="dinner">Dinner</option>
-            <option value="snack">Snack</option>
-          </TextField>
-          <Button variant="contained" color="primary" onClick={handleAddMeal}>
-            Add Meal
-          </Button>
-        </Box>
-      </Box>
-      {/* Macro Totals */}
-      <Box mb={2}>
-        <Typography variant="subtitle2">Today's Totals:</Typography>
-        <Typography variant="body2">
-          Calories: {nutritionEntries.reduce((sum, e) => sum + (e.calories || 0), 0)} kcal | Protein: {nutritionEntries.reduce((sum, e) => sum + (e.protein || 0), 0)}g | Carbs: {nutritionEntries.reduce((sum, e) => sum + (e.carbs || 0), 0)}g | Fat: {nutritionEntries.reduce((sum, e) => sum + (e.fat || 0), 0)}g
-        </Typography>
-      </Box>
-      {nutritionEntries.length > 0 ? (
-        <Grid container spacing={2}>
-          {nutritionEntries.map((entry) => (
-            <Grid item xs={12} key={entry._id}>
-              <Box sx={{ p: 2, backgroundColor: "#f8fafc", borderRadius: 1 }}>
-                <Typography variant="subtitle1" fontWeight="bold">
-                  {entry.food}
-                </Typography>
-                <Typography variant="body2">
-                  Quantity: {entry.quantity} | Calories: {entry.calories} | Protein: {entry.protein || 0}g | Carbs: {entry.carbs || 0}g | Fat: {entry.fat || 0}g | Meal: {entry.mealType || '--'}
-                </Typography>
-                <Button
-                  variant="outlined"
-                  color="secondary"
-                  onClick={() => handleDeleteMeal(entry._id)}
-                  sx={{ mt: 1 }}
+    <div className="p-6 bg-white rounded-lg shadow-md">
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-lg">
+          {error}
+        </div>
+      )}
+
+      <div className="mb-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Nutrition Tracker</h2>
+          <div className="flex gap-4">
+            <input
+              type="text"
+              value={newEntry.food}
+              onChange={(e) => setNewEntry({ ...newEntry, food: e.target.value })}
+              placeholder="Food"
+              className="p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <input
+              type="number"
+              value={newEntry.calories}
+              onChange={(e) => setNewEntry({ ...newEntry, calories: e.target.value })}
+              placeholder="Calories"
+              className="p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-20"
+            />
+            <input
+              type="number"
+              value={newEntry.protein}
+              onChange={(e) => setNewEntry({ ...newEntry, protein: e.target.value })}
+              placeholder="Protein"
+              className="p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-20"
+            />
+            <input
+              type="number"
+              value={newEntry.carbs}
+              onChange={(e) => setNewEntry({ ...newEntry, carbs: e.target.value })}
+              placeholder="Carbs"
+              className="p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-20"
+            />
+            <input
+              type="number"
+              value={newEntry.fat}
+              onChange={(e) => setNewEntry({ ...newEntry, fat: e.target.value })}
+              placeholder="Fat"
+              className="p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-20"
+            />
+            <input
+              type="date"
+              value={newEntry.date}
+              onChange={(e) => setNewEntry({ ...newEntry, date: e.target.value })}
+              className="p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              onClick={handleAddEntry}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
+              Add
+            </button>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {entries.map((entry, index) => (
+            <div
+              key={index}
+              className="p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <div className="flex justify-between items-start">
+                <div>
+                  <h4 className="font-semibold text-lg">
+                    {entry.food}
+                  </h4>
+                  <p className="text-gray-600">
+                    {entry.calories} calories
+                  </p>
+                  <p className="text-gray-500 text-sm">
+                    Protein: {entry.protein}g | Carbs: {entry.carbs}g | Fat: {entry.fat}g
+                  </p>
+                  <p className="text-gray-500 text-sm">
+                    {new Date(entry.date).toLocaleDateString()}
+                  </p>
+                </div>
+                <button
+                  onClick={() => nutritionApi.deleteNutritionEntry(entry.id)}
+                  className="text-red-600 hover:text-red-700 focus:outline-none"
                 >
                   Delete
-                </Button>
-              </Box>
-            </Grid>
+                </button>
+              </div>
+            </div>
           ))}
-        </Grid>
-      ) : (
-        <Typography variant="body1" color="text.secondary">
-          No meals recorded yet. Start adding your meals!
-        </Typography>
-      )}
-    </Paper>
+        </div>
+
+        {entries.length === 0 && (
+          <p className="text-gray-500 text-center py-4">
+            No nutrition entries recorded yet. Start tracking your meals!
+          </p>
+        )}
+      </div>
+    </div>
   );
 };

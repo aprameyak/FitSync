@@ -1,18 +1,6 @@
-import { useEffect, useState } from "react";
-import { Box, Button, Typography, Paper, CircularProgress, Alert, TextField, Grid } from "@mui/material";
-import axios from "axios";
-
-interface Workout {
-  _id: string;
-  userId: string;
-  exercise: string;
-  sets: number;
-  reps: number;
-  weight: number;
-  pr: boolean;
-  date: string;
-  notes?: string;
-}
+import { useState, useEffect } from "react";
+import { workoutApi } from "../routes/workouts";
+import { Workout } from "../types";
 
 interface WorkoutSectionProps {
   userId: string;
@@ -22,228 +10,166 @@ export const WorkoutSection = ({ userId }: WorkoutSectionProps) => {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [newWorkout, setNewWorkout] = useState({ 
-    exercise: "", 
-    sets: 0, 
-    reps: 0, 
-    weight: 0,
-    notes: "",
-    date: new Date().toISOString().split('T')[0]
+  const [newWorkout, setNewWorkout] = useState({
+    exercise: "",
+    sets: "",
+    reps: "",
+    weight: "",
+    duration: "",
+    notes: ""
   });
-  const [exerciseBests, setExerciseBests] = useState<Record<string, { weight: number; reps: number }>>({});
 
   useEffect(() => {
-    const fetchWorkouts = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await axios.get(`/api/fitness/${userId}`);
-        if (response.data && Array.isArray(response.data)) {
-          setWorkouts(response.data);
-          calculateExerciseBests(response.data);
-        } else {
-          setWorkouts([]);
-        }
-      } catch (err: any) {
-        if (err.response?.status === 404) {
-          setWorkouts([]);
-        } else {
-          setError("Failed to fetch workouts. Please try again.");
-        }
-      }
-      setIsLoading(false);
-    };
-
     fetchWorkouts();
   }, [userId]);
 
-  const calculateExerciseBests = (workoutData: Workout[]) => {
-    const bests: Record<string, { weight: number; reps: number }> = {};
-    workoutData.forEach(workout => {
-      if (!bests[workout.exercise] || 
-          workout.weight > bests[workout.exercise].weight ||
-          (workout.weight === bests[workout.exercise].weight && workout.reps > bests[workout.exercise].reps)) {
-        bests[workout.exercise] = { weight: workout.weight, reps: workout.reps };
-      }
-    });
-    setExerciseBests(bests);
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setNewWorkout((prev) => ({ ...prev, [name]: value }));
+  const fetchWorkouts = async () => {
+    try {
+      const data = await workoutApi.fetchWorkouts(userId);
+      setWorkouts(data);
+    } catch (err: any) {
+      setError(err.message || "Failed to fetch workouts");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleAddWorkout = async () => {
-    if (!newWorkout.exercise || newWorkout.sets <= 0 || newWorkout.reps <= 0 || newWorkout.weight <= 0) {
-      setError("All fields are required and must be positive numbers.");
-      return;
-    }
-
-    const isPR = !exerciseBests[newWorkout.exercise] || 
-                 newWorkout.weight > exerciseBests[newWorkout.exercise].weight ||
-                 (newWorkout.weight === exerciseBests[newWorkout.exercise].weight && 
-                  newWorkout.reps > exerciseBests[newWorkout.exercise].reps);
-
     try {
-      const response = await axios.post("/api/fitness", { 
-        ...newWorkout, 
-        userId,
-        pr: isPR,
-        date: newWorkout.date
+      const workout = await workoutApi.addWorkout(userId, {
+        ...newWorkout,
+        sets: parseInt(newWorkout.sets),
+        reps: parseInt(newWorkout.reps),
+        weight: parseFloat(newWorkout.weight),
+        duration: parseInt(newWorkout.duration)
       });
-      setWorkouts(prev => [...prev, response.data]);
-      calculateExerciseBests([...workouts, response.data]);
-      setNewWorkout({ 
-        exercise: "", 
-        sets: 0, 
-        reps: 0, 
-        weight: 0,
-        notes: "",
-        date: new Date().toISOString().split('T')[0]
+      setWorkouts([...workouts, workout]);
+      setNewWorkout({
+        exercise: "",
+        sets: "",
+        reps: "",
+        weight: "",
+        duration: "",
+        notes: ""
       });
-    } catch (err) {
-      setError("Failed to add workout. Please try again.");
-    }
-  };
-
-  const handleDeleteWorkout = async (id: string) => {
-    try {
-      await axios.delete(`/api/fitness/${id}`);
-      setWorkouts((prev) => prev.filter((workout) => workout._id !== id));
-    } catch (err) {
-      setError("Failed to delete workout. Please try again.");
+    } catch (err: any) {
+      setError(err.message || "Failed to add workout");
     }
   };
 
   if (isLoading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="100%">
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Alert severity="error" sx={{ mb: 2 }}>
-        {error}
-      </Alert>
+      <div className="h-full flex justify-center items-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
     );
   }
 
   return (
-    <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h6">Workout Tracker</Typography>
-        <Box display="flex" gap={2}>
-          <TextField
-            label="Exercise"
-            name="exercise"
-            value={newWorkout.exercise}
-            onChange={handleInputChange}
-            size="small"
-          />
-          <TextField
-            label="Sets"
-            name="sets"
-            type="number"
-            value={newWorkout.sets}
-            onChange={handleInputChange}
-            size="small"
-          />
-          <TextField
-            label="Reps"
-            name="reps"
-            type="number"
-            value={newWorkout.reps}
-            onChange={handleInputChange}
-            size="small"
-          />
-          <TextField
-            label="Weight (kg)"
-            name="weight"
-            type="number"
-            value={newWorkout.weight}
-            onChange={handleInputChange}
-            size="small"
-          />
-          <TextField
-            label="Date"
-            name="date"
-            type="date"
-            value={newWorkout.date}
-            onChange={handleInputChange}
-            size="small"
-            InputLabelProps={{ shrink: true }}
-          />
-          <TextField
-            label="Notes"
-            name="notes"
-            value={newWorkout.notes}
-            onChange={handleInputChange}
-            size="small"
-          />
-          <Button variant="contained" color="primary" onClick={handleAddWorkout}>
-            Add Workout
-          </Button>
-        </Box>
-      </Box>
-
-      <Box mb={2}>
-        <Typography variant="subtitle2">Personal Bests:</Typography>
-        <Grid container spacing={1}>
-          {Object.entries(exerciseBests).map(([exercise, best]) => (
-            <Grid item xs={12} sm={6} md={4} key={exercise}>
-              <Typography variant="body2">
-                {exercise}: {best.weight}kg × {best.reps} reps
-              </Typography>
-            </Grid>
-          ))}
-        </Grid>
-      </Box>
-
-      {workouts.length > 0 ? (
-        workouts.map((workout) => (
-          <Box 
-            key={workout._id} 
-            sx={{ 
-              mb: 2, 
-              p: 2, 
-              backgroundColor: workout.pr ? "#e3f2fd" : "#f8fafc", 
-              borderRadius: 1,
-              border: workout.pr ? "1px solid #2196f3" : "none"
-            }}
-          >
-            <Typography variant="subtitle1" fontWeight="bold">
-              {workout.exercise} {workout.pr && "🏆 PR!"}
-            </Typography>
-            <Typography variant="body2">
-              Sets: {workout.sets} | Reps: {workout.reps} | Weight: {workout.weight} kg
-            </Typography>
-            {workout.notes && (
-              <Typography variant="body2" color="text.secondary">
-                Notes: {workout.notes}
-              </Typography>
-            )}
-            <Typography variant="caption" color="text.secondary">
-              {new Date(workout.date).toLocaleDateString()}
-            </Typography>
-            <Button
-              variant="outlined"
-              color="secondary"
-              onClick={() => handleDeleteWorkout(workout._id)}
-              sx={{ mt: 1 }}
-            >
-              Delete
-            </Button>
-          </Box>
-        ))
-      ) : (
-        <Typography variant="body1" color="text.secondary">
-          No workouts recorded yet. Start adding your workouts!
-        </Typography>
+    <div className="p-6 bg-white rounded-lg shadow-md">
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-lg">
+          {error}
+        </div>
       )}
-    </Paper>
+
+      <div className="mb-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Workout Tracker</h2>
+          <div className="flex gap-4">
+            <input
+              type="text"
+              value={newWorkout.exercise}
+              onChange={(e) => setNewWorkout({ ...newWorkout, exercise: e.target.value })}
+              placeholder="Exercise"
+              className="p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <input
+              type="number"
+              value={newWorkout.sets}
+              onChange={(e) => setNewWorkout({ ...newWorkout, sets: e.target.value })}
+              placeholder="Sets"
+              className="p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-20"
+            />
+            <input
+              type="number"
+              value={newWorkout.reps}
+              onChange={(e) => setNewWorkout({ ...newWorkout, reps: e.target.value })}
+              placeholder="Reps"
+              className="p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-20"
+            />
+            <input
+              type="number"
+              value={newWorkout.weight}
+              onChange={(e) => setNewWorkout({ ...newWorkout, weight: e.target.value })}
+              placeholder="Weight"
+              className="p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-20"
+            />
+            <input
+              type="number"
+              value={newWorkout.duration}
+              onChange={(e) => setNewWorkout({ ...newWorkout, duration: e.target.value })}
+              placeholder="Duration"
+              className="p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-20"
+            />
+            <button
+              onClick={handleAddWorkout}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
+              Add
+            </button>
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <h3 className="text-sm font-medium text-gray-700 mb-2">Personal Bests:</h3>
+          <div className="grid grid-cols-2 gap-4">
+            {workouts.map((workout, index) => (
+              <div key={index} className="text-sm">
+                {workout.exercise}: {workout.weight}kg x {workout.reps}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {workouts.map((workout, index) => (
+            <div
+              key={index}
+              className="p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <div className="flex justify-between items-start">
+                <div>
+                  <h4 className="font-semibold text-lg">
+                    {workout.exercise}
+                  </h4>
+                  <p className="text-gray-600">
+                    {workout.sets} sets × {workout.reps} reps
+                  </p>
+                  <p className="text-gray-500 text-sm">
+                    Weight: {workout.weight}kg
+                  </p>
+                  <p className="text-gray-500 text-sm">
+                    Duration: {workout.duration} minutes
+                  </p>
+                </div>
+                <button
+                  onClick={() => workoutApi.deleteWorkout(workout.id)}
+                  className="text-red-600 hover:text-red-700 focus:outline-none"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {workouts.length === 0 && (
+          <p className="text-gray-500 text-center py-4">
+            No workouts recorded yet. Start tracking your progress!
+          </p>
+        )}
+      </div>
+    </div>
   );
 };
