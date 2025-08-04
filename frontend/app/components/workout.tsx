@@ -36,13 +36,13 @@ export const WorkoutSection = ({ userId }: WorkoutSectionProps) => {
 
   const handleAddWorkout = async () => {
     try {
-      const workout = await workoutApi.addWorkout(userId, {
+      const workout = await workoutApi.addWorkout({
         ...newWorkout,
         sets: parseInt(newWorkout.sets),
         reps: parseInt(newWorkout.reps),
         weight: parseFloat(newWorkout.weight),
         duration: parseInt(newWorkout.duration)
-      });
+      }, userId);
       setWorkouts([...workouts, workout]);
       setNewWorkout({
         exercise: "",

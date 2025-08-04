@@ -15,5 +15,12 @@ export const workoutApi = {
     });
     if (!response.ok) throw new Error("Failed to add workout");
     return response.json();
+  },
+  deleteWorkout: async (workoutId: string) => {
+    const response = await fetch(`${process.env.BACKEND_URL}/api/fitness/${workoutId}`, {
+      method: "DELETE"
+    });
+    if (!response.ok) throw new Error("Failed to delete workout");
+    return response.json();
   }
 };

@@ -1,11 +1,12 @@
 export interface Profile {
+    id?: string;
     userId?: string;
     weight?: number;
     height?: number;
     age?: number;
-    gender?: string;
-    activityLevel?: 'sedentary' | 'light' | 'moderate' | 'active' | 'very active';
-    goal?: 'lose' | 'maintain' | 'gain';
+    gender?: "male" | "female" | "other";
+    activityLevel?: "sedentary" | "light" | "moderate" | "active" | "very_active";
+    goal?: "lose_weight" | "maintain" | "gain_weight";
 }
   
 export interface Workout {

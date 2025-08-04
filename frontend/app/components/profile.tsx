@@ -31,7 +31,7 @@ export const ProfileSection = ({ userId }: ProfileSectionProps) => {
 
   const handleSave = async () => {
     try {
-      const updatedProfile = await profileApi.updateProfile(userId, editedProfile);
+      const updatedProfile = await profileApi.updateProfile(editedProfile, userId);
       setProfile(updatedProfile);
       setIsEditing(false);
     } catch (err: any) {
@@ -153,7 +153,7 @@ export const ProfileSection = ({ userId }: ProfileSectionProps) => {
             <select
               id="gender"
               value={editedProfile.gender || ""}
-              onChange={(e) => setEditedProfile({ ...editedProfile, gender: e.target.value })}
+              onChange={(e) => setEditedProfile({ ...editedProfile, gender: e.target.value as "male" | "female" | "other" })}
               className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Select gender</option>
@@ -170,7 +170,7 @@ export const ProfileSection = ({ userId }: ProfileSectionProps) => {
             <select
               id="activityLevel"
               value={editedProfile.activityLevel || ""}
-              onChange={(e) => setEditedProfile({ ...editedProfile, activityLevel: e.target.value })}
+              onChange={(e) => setEditedProfile({ ...editedProfile, activityLevel: e.target.value as "sedentary" | "light" | "moderate" | "active" | "very_active" })}
               className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Select activity level</option>
@@ -189,7 +189,7 @@ export const ProfileSection = ({ userId }: ProfileSectionProps) => {
             <select
               id="goal"
               value={editedProfile.goal || ""}
-              onChange={(e) => setEditedProfile({ ...editedProfile, goal: e.target.value })}
+              onChange={(e) => setEditedProfile({ ...editedProfile, goal: e.target.value as "lose_weight" | "maintain" | "gain_weight" })}
               className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Select goal</option>
