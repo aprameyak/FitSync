@@ -2,6 +2,7 @@
   "name": "fitsync-frontend",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -24,10 +25,18 @@
     "react-dom": "^19.1.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.32.0",
+    "@next/eslint-plugin-next": "^15.4.5",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^24.1.0",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
+    "@typescript-eslint/eslint-plugin": "^8.38.0",
+    "@typescript-eslint/parser": "^8.38.0",
+    "eslint": "^9.32.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^16.3.0",
     "style-loader": "^3.3.3",
     "typescript": "^5.2.2"
   }
