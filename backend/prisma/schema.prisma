@@ -1,0 +1,137 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  profile   Profile?
+  fitness   Fitness[]
+  nutrition Nutrition[]
+  calories  Calories[]
+  media     Media[]
+  lifts     Lift[]
+
+  @@map("users")
+}
+
+model Profile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  age         Int?
+  weight      Float?
+  height      Float?
+  gender      String?
+  activityLevel String?
+  goal        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+model Fitness {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String
+  duration    Int
+  calories    Int
+  date        DateTime
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("fitness")
+}
+
+model Nutrition {
+  id          String   @id @default(cuid())
+  userId      String
+  mealType    String
+  foodName    String
+  calories    Int
+  protein     Float?
+  carbs       Float?
+  fat         Float?
+  fiber       Float?
+  date        DateTime
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("nutrition")
+}
+
+model Calories {
+  id          String   @id @default(cuid())
+  userId      String
+  date        DateTime
+  consumed    Int
+  burned      Int
+  net         Int
+  goal        Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("calories")
+}
+
+model Media {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String
+  url         String
+  title       String?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("media")
+}
+
+model Lift {
+  id          String   @id @default(cuid())
+  userId      String
+  exercise    String
+  sets        Int
+  reps        Int
+  weight      Float?
+  date        DateTime
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("lifts")
+}

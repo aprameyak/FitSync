@@ -1,21 +1,20 @@
-const express = require('express')
-const router = express.Router()
-const {
-    createFitness,
-    getFitness,
-    getFitnesses,
-    deleteFitness,
-    updateFitness
-} = require('../controllers/fitnesscontroller')
+import express from 'express';
+import { 
+    createFitness, 
+    getFitness, 
+    getFitnesses, 
+    deleteFitness, 
+    updateFitness, 
+    getFitnessStats 
+} from '../controllers/fitnesscontroller.js';
 
-router.get('/', getFitness) 
+const router = express.Router();
 
-router.get('/:userId', getFitnesses)
+router.post('/', createFitness);
+router.get('/:id', getFitness);
+router.get('/user/:userId', getFitnesses);
+router.get('/user/:userId/stats', getFitnessStats);
+router.delete('/:id', deleteFitness);
+router.put('/:id', updateFitness);
 
-router.post('/', createFitness) 
-
-router.delete('/:id', deleteFitness)
-
-router.patch('/:id', updateFitness)
-
-module.exports = router
+export default router;

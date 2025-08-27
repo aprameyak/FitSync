@@ -1,16 +1,17 @@
 
-const express = require('express');
-const router = express.Router();
-const { 
+import express from 'express';
+import { 
     getCalories, 
-    updateCalories,
-    createCalories
-} = require('../controllers/caloriescontroller');
+    updateCalories, 
+    createCalories, 
+    getCaloriesStats 
+} from '../controllers/caloriescontroller.js';
 
-router.get('/:userId', getCalories);
+const router = express.Router();
 
+router.get('/user/:userId', getCalories);
 router.post('/', createCalories);
+router.put('/user/:userId', updateCalories);
+router.get('/user/:userId/stats', getCaloriesStats);
 
-router.patch('/:userId', updateCalories);
-
-module.exports = router;
+export default router;

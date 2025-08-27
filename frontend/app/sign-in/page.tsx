@@ -1,8 +1,8 @@
-'use client';
-
-import { useState, ChangeEvent } from 'react';
-import { useRouter } from 'next/navigation';
+"use client";
+import React from "react";
+import { useState } from "react";
 import { useAuth } from '../context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 export default function SignIn() {
     const [email, setEmail] = useState('');
@@ -43,7 +43,7 @@ export default function SignIn() {
                             id="email"
                             type="email"
                             value={email}
-                            onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                             className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             required
                         />
@@ -57,7 +57,7 @@ export default function SignIn() {
                             id="password"
                             type="password"
                             value={password}
-                            onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                             className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             required
                         />

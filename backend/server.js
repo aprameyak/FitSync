@@ -1,21 +1,26 @@
-require('dotenv').config();
+import dotenv from 'dotenv';
+import express from 'express';
+import cors from 'cors';
+import jwt from 'jsonwebtoken';
+import path from 'path';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import { fileURLToPath } from 'url';
 
-const express = require('express');
-const mongoose = require('mongoose')
-const cors = require('cors');
-const jwt = require('jsonwebtoken');
-const path = require('path');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
+import authRoutes from "./routes/auth.js";
+import fitnessRoutes from "./routes/fitness.js";
+import nutritionRoutes from "./routes/nutrition.js";
+import profileRoutes from "./routes/profile.js";
+import calorieRoutes from "./routes/calories.js";
+import mediaRoutes from "./routes/media.js";
+import liftRoutes from "./routes/lift.js";
+import auth from './middleware/auth.js';
 
-const authRoutes = require("./routes/auth")
-const fitnessRoutes = require("./routes/fitness")
-const nutritionRoutes = require("./routes/nutrition")
-const profileRoutes = require("./routes/profile")
-const calorieRoutes = require("./routes/calories")
-const mediaRoutes = require("./routes/media")
-const liftRoutes = require("./routes/lift")
-const auth = require('./middleware/auth');
+// ES6 module fix for __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config();
 
 const app = express();
 
@@ -53,12 +58,12 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
-app.use('/api/fitness', auth, fitnessRoutes)
-app.use('/api/nutrition', auth, nutritionRoutes)
-app.use('/api/profile', auth, profileRoutes)
-app.use('/api/calories', auth, calorieRoutes)
-app.use('/api/media', auth, mediaRoutes)
-app.use('/api/lift', auth, liftRoutes)
+app.use('/api/fitness', auth, fitnessRoutes);
+app.use('/api/nutrition', auth, nutritionRoutes);
+app.use('/api/profile', auth, profileRoutes);
+app.use('/api/calories', auth, calorieRoutes);
+app.use('/api/media', auth, mediaRoutes);
+app.use('/api/lift', auth, liftRoutes);
 
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, '../frontend/out')));
@@ -75,18 +80,14 @@ app.use((err, req, res, next) => {
     });
 });
 
-if (!process.env.ATLAS_URI || !process.env.PORT || !process.env.JWT_SECRET || !process.env.JWT_EXPIRES_IN) {
+if (!process.env.DATABASE_URL || !process.env.PORT || !process.env.JWT_SECRET || !process.env.JWT_EXPIRES_IN) {
     console.error("Error: Missing required environment variables");
+    console.error("Required: DATABASE_URL, PORT, JWT_SECRET, JWT_EXPIRES_IN");
     process.exit(1);
 }
 
-mongoose.connect(process.env.ATLAS_URI)
-    .then(() => {
-        const port = process.env.PORT || 5000;
-        app.listen(port, () => {
-            console.log(`Server running in ${process.env.NODE_ENV} mode on port ${port}`);
-        });
-    })
-    .catch(err => {
-        console.error("Error connecting to MongoDB:", err);
-    });
+const port = process.env.PORT || 5000;
+app.listen(port, () => {
+    console.log(`Server running in ${process.env.NODE_ENV} mode on port ${port}`);
+    console.log('Database connection will be established when first request is made');
+});

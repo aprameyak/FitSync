@@ -1,4 +1,6 @@
-import { useState, useRef, useEffect, ChangeEvent } from "react";
+import React from "react";
+import { useState } from "react";
+import { chatApi } from "../routes/chat";
 import { ChatMessage } from "../types";
 
 interface ChatSectionProps {

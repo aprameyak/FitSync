@@ -1,12 +1,18 @@
-const Calories = require('../models/caloriesmodel');
-const mongoose = require('mongoose');
+import CaloriesModel from '../models/caloriesmodel.js';
 
 const getCalories = async (req, res) => {
     const { userId } = req.params;
-
+    const { date } = req.query;
+    
     try {
-        const calories = await Calories.findOne({ userId });
-        if (!calories) {
+        let calories;
+        if (date) {
+            calories = await CaloriesModel.findByUserIdAndDate(userId, new Date(date));
+        } else {
+            calories = await CaloriesModel.findByUserId(userId);
+        }
+        
+        if (!calories || (Array.isArray(calories) && calories.length === 0)) {
             return res.status(404).json({ error: 'Calories data not found' });
         }
 
@@ -18,14 +24,16 @@ const getCalories = async (req, res) => {
 
 const updateCalories = async (req, res) => {
     const { userId } = req.params;
-    const { fitness, nutrition } = req.body;
+    const { consumed, burned, net, goal, date } = req.body;
 
     try {
-        const updatedCalories = await Calories.findOneAndUpdate(
-            { userId },
-            { fitness, nutrition },
-            { new: true, upsert: true } 
-        );
+        const targetDate = date ? new Date(date) : new Date();
+        const updatedCalories = await CaloriesModel.upsert(userId, targetDate, {
+            consumed: consumed || 0,
+            burned: burned || 0,
+            net: net || 0,
+            goal: goal
+        });
 
         res.status(200).json(updatedCalories);
     } catch (error) {
@@ -34,24 +42,41 @@ const updateCalories = async (req, res) => {
 };
 
 const createCalories = async (req, res) => {
-    const { userId } = req.body;
+    const { userId, consumed, burned, net, goal, date } = req.body;
     try {
-        let calories = await Calories.findOne({ userId });
-        if (!calories) {
-            calories = await Calories.create({
-                userId,
-                fitness: 0,
-                nutrition: 0,
-            });
-        }
-        res.status(200).json(calories);
+        const targetDate = date ? new Date(date) : new Date();
+        const calories = await CaloriesModel.create({
+            userId,
+            consumed: consumed || 0,
+            burned: burned || 0,
+            net: net || 0,
+            goal: goal,
+            date: targetDate
+        });
+        res.status(201).json(calories);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
-module.exports = {
-    getCalories,
-    updateCalories,
-    createCalories,
+const getCaloriesStats = async (req, res) => {
+    const { userId } = req.params;
+    const { startDate, endDate } = req.query;
+    
+    try {
+        const start = startDate ? new Date(startDate) : new Date(new Date().setDate(new Date().getDate() - 30));
+        const end = endDate ? new Date(endDate) : new Date();
+        
+        const stats = await CaloriesModel.getStats(userId, start, end);
+        res.status(200).json(stats);
+    } catch (error) {
+        res.status(500).json({ error: 'Error fetching calories stats', details: error.message });
+    }
+};
+
+export { 
+    getCalories, 
+    updateCalories, 
+    createCalories, 
+    getCaloriesStats 
 };

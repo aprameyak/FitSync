@@ -1,18 +1,20 @@
-const express = require('express');
-const router = express.Router();
-const { 
+import express from 'express';
+import { 
     getLifts, 
-    addLift,
-    deleteLift,
-    editLift,
-} = require('../controllers/liftcontroller');
+    addLift, 
+    deleteLift, 
+    editLift, 
+    getLiftStats, 
+    getPersonalRecords 
+} from '../controllers/liftcontroller.js';
 
-router.get('/:userId', getLifts);
+const router = express.Router();
 
+router.get('/user/:userId', getLifts);
 router.post('/', addLift);
-
 router.delete('/:id', deleteLift);
+router.put('/:id', editLift);
+router.get('/user/:userId/stats', getLiftStats);
+router.get('/user/:userId/records', getPersonalRecords);
 
-router.patch('/:id', editLift);
-
-module.exports = router;
+export default router;

@@ -1,13 +1,19 @@
 
-const express = require('express');
-const router = express.Router();
-const { 
+import express from 'express';
+import { 
     getMedia, 
-    addMedia,
-} = require('../controllers/mediacontroller');
+    addMedia, 
+    updateMedia, 
+    deleteMedia, 
+    getMediaStats 
+} from '../controllers/mediacontroller.js';
 
-router.get('/', getMedia);
+const router = express.Router();
 
+router.get('/user/:userId', getMedia);
 router.post('/', addMedia);
+router.put('/:id', updateMedia);
+router.delete('/:id', deleteMedia);
+router.get('/user/:userId/stats', getMediaStats);
 
-module.exports = router;
+export default router;

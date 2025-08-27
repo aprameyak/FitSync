@@ -1,9 +1,9 @@
-const User = require('../models/usermodel');
-const jwt = require('jsonwebtoken');
+import UserModel from '../models/usermodel.js';
+import jwt from 'jsonwebtoken';
 
 const generateToken = (user) => {
     return jwt.sign(
-        { id: user._id, email: user.email },
+        { id: user.id, email: user.email },
         process.env.JWT_SECRET,
         { expiresIn: process.env.JWT_EXPIRES_IN }
     );
@@ -13,20 +13,19 @@ const register = async (req, res) => {
     try {
         const { email, password, name } = req.body;
 
-        const existingUser = await User.findOne({ email });
+        const existingUser = await UserModel.findByEmail(email);
         if (existingUser) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        const user = new User({ email, password, name });
-        await user.save();
+        const user = await UserModel.create({ email, password, name });
         const token = generateToken(user);
 
         res.status(201).json({
             message: 'User registered successfully',
             token,
             user: {
-                id: user._id,
+                id: user.id,
                 email: user.email,
                 name: user.name
             }
@@ -40,12 +39,12 @@ const login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        const user = await User.findOne({ email });
+        const user = await UserModel.findByEmail(email);
         if (!user) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        const isMatch = await user.comparePassword(password);
+        const isMatch = await UserModel.comparePassword(password, user.password);
         if (!isMatch) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
@@ -56,7 +55,7 @@ const login = async (req, res) => {
             message: 'Login successful',
             token,
             user: {
-                id: user._id,
+                id: user.id,
                 email: user.email,
                 name: user.name
             }
@@ -66,7 +65,4 @@ const login = async (req, res) => {
     }
 };
 
-module.exports = {
-    register,
-    login
-}; 
+export { register, login }; 

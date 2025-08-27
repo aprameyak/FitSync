@@ -1,21 +1,20 @@
-const express = require('express')
-const router = express.Router()
-const {
-    createNutrition,
-    getNutrition,
-    getNutritions,
-    deleteNutrition,
-    updateNutrition
-} = require('../controllers/nutritioncontroller')
+import express from 'express';
+import { 
+    createNutrition, 
+    getNutrition, 
+    getNutritions, 
+    deleteNutrition, 
+    updateNutrition, 
+    getNutritionStats 
+} from '../controllers/nutritioncontroller.js';
 
-router.get('/', getNutrition) 
+const router = express.Router();
 
-router.get('/:userId', getNutritions)
+router.post('/', createNutrition);
+router.get('/:id', getNutrition);
+router.get('/user/:userId', getNutritions);
+router.get('/user/:userId/stats', getNutritionStats);
+router.delete('/:id', deleteNutrition);
+router.put('/:id', updateNutrition);
 
-router.post('/', createNutrition) 
-
-router.delete('/:id', deleteNutrition)
-
-router.patch('/:id', updateNutrition)
-
-module.exports = router
+export default router;
