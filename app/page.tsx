@@ -1,4 +1,4 @@
-import { Button } from '@fitsync/ui'
+import { Button } from '@/components/ui/button'
 import { Activity, Dumbbell, Target, TrendingUp } from 'lucide-react'
 
 export default function HomePage() {
@@ -19,7 +19,7 @@ export default function HomePage() {
               <a href="#pricing" className="text-gray-600 hover:text-gray-900 transition-colors">
                 Pricing
               </a>
-              <Button variant="primary">Get Started</Button>
+              <Button>Get Started</Button>
             </nav>
           </div>
         </div>
