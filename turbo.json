@@ -6,11 +6,18 @@
       "outputs": ["dist/**", ".next/**"]
     },
     "dev": {
-      "cache": false
+      "cache": false,
+      "persistent": true
     },
     "lint": {},
     "typecheck": {},
-    "postinstall": {
+    "db:generate": {
+      "cache": false
+    },
+    "db:migrate": {
+      "cache": false
+    },
+    "db:studio": {
       "cache": false
     }
   }
