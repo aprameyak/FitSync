@@ -35,7 +35,7 @@ export default function HomePage() {
         <section className="container mx-auto px-4 py-20 text-center">
           <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6">
             Track Your Fitness{' '}
-
+            <span className="block text-blue-600">Journey</span>
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
             Modern fitness tracking with AI-powered insights, personalized workouts, 
