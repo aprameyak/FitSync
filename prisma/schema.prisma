@@ -1,0 +1,190 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // BMR and Profile Data
+  age           Int?
+  gender        String?   // "male", "female", "other"
+  height        Float?    // in cm
+  weight        Float?    // in kg
+  activityLevel String?   // "sedentary", "light", "moderate", "active", "very_active"
+  bmr           Float?    // calculated BMR
+  tdee          Float?    // Total Daily Energy Expenditure
+
+  // Relations
+  accounts      Account[]
+  sessions      Session[]
+  workouts      Workout[]
+  exercises     Exercise[]
+  nutrition     Nutrition[]
+  goals         Goal[]
+  progress      Progress[]
+
+  @@map("users")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Workout {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  duration    Int? // in minutes
+  calories    Int?
+  date        DateTime @default(now())
+  userId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercises WorkoutExercise[]
+
+  @@map("workouts")
+}
+
+model Exercise {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  category    String? // e.g., "strength", "cardio", "flexibility"
+  muscleGroup String? // e.g., "chest", "back", "legs"
+  equipment   String? // e.g., "dumbbell", "barbell", "bodyweight"
+  userId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workoutExercise WorkoutExercise[]
+
+  @@map("exercises")
+}
+
+model WorkoutExercise {
+  id         String @id @default(cuid())
+  workoutId  String
+  exerciseId String
+  sets       Int
+  reps       Int?
+  weight     Float? // in kg
+  duration   Int?   // in seconds
+  notes      String?
+
+  // Relations
+  workout  Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([workoutId, exerciseId])
+  @@map("workout_exercises")
+}
+
+model Nutrition {
+  id        String   @id @default(cuid())
+  name      String
+  calories  Int
+  protein   Float?   // in grams
+  carbs     Float?   // in grams
+  fat       Float?   // in grams
+  mealType  String   // "breakfast", "lunch", "dinner", "snack"
+  date      DateTime @default(now())
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("nutrition")
+}
+
+model Goal {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  target      Float
+  current     Float    @default(0)
+  unit        String   // e.g., "kg", "miles", "calories"
+  deadline    DateTime?
+  completed   Boolean  @default(false)
+  userId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("goals")
+}
+
+model Progress {
+  id        String   @id @default(cuid())
+  metric    String   // e.g., "weight", "body_fat", "muscle_mass"
+  value     Float
+  date      DateTime @default(now())
+  notes     String?
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("progress")
+}
