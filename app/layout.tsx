@@ -13,6 +13,19 @@ export const metadata: Metadata = {
   keywords: ['fitness', 'workout', 'tracking', 'health'],
   authors: [{ name: 'FitSync Team' }],
   creator: 'FitSync',
+  icons: {
+    icon: [
+      {
+        url: '/favicon.ico',
+        sizes: 'any',
+      },
+      {
+        url: '/icon.svg',
+        type: 'image/svg+xml',
+      },
+    ],
+    apple: '/apple-touch-icon.png',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
