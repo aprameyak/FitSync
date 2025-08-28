@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Activity, Dumbbell, Target, TrendingUp, Calendar, BarChart3, Bot } from 'lucide-react'
+import { Activity, Dumbbell, Bot } from 'lucide-react'
 import Link from 'next/link'
 
 export default function HomePage() {
@@ -34,8 +34,8 @@ export default function HomePage() {
       <main>
         <section className="container mx-auto px-4 py-20 text-center">
           <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6">
-            Track Your Fitness
-            <span className="block text-blue-600">Journey</span>
+            Track Your Fitness{' '}
+
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
             Modern fitness tracking with AI-powered insights, personalized workouts, 

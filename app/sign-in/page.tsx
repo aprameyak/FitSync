@@ -36,6 +36,7 @@ export default function SignInPage() {
         router.refresh()
       }
     } catch (error) {
+      console.error('Sign-in error:', error)
       setError('An error occurred. Please try again.')
     } finally {
       setIsLoading(false)

@@ -1,24 +1,15 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useAuth } from '../context/AuthContext'
-import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import ChatInterface from '@/components/chat/ChatInterface'
 import { Button } from '@/components/ui/button'
-import { Bot, ArrowLeft } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
 export default function ChatPage() {
-  const { user, loading } = useAuth()
-  const router = useRouter()
+  const { data: session, status } = useSession()
 
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/sign-in')
-    }
-  }, [user, loading, router])
-
-  if (loading) {
+  if (status === 'loading') {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -29,8 +20,8 @@ export default function ChatPage() {
     )
   }
 
-  if (!user) {
-    return null
+  if (!session) {
+    return null // This shouldn't happen due to middleware, but just in case
   }
 
   return (
@@ -56,11 +47,13 @@ export default function ChatPage() {
           <div className="h-[600px]">
             <ChatInterface 
               userContext={{
-                age: 25, // This would come from user profile
-                weight: 70,
-                height: 175,
-                activityLevel: 'moderate',
-                goals: 'Build muscle and improve strength'
+                name: session.user?.name || 'User',
+                email: session.user?.email || '',
+                age: 25, // This should come from user profile
+                weight: 70, // This should come from user profile
+                height: 175, // This should come from user profile
+                activityLevel: 'moderate', // This should come from user profile
+                goals: 'Build muscle and improve strength' // This should come from user profile
               }}
             />
           </div>

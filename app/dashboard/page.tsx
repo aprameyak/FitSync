@@ -2,7 +2,7 @@
 
 import { useSession, signOut } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
-import { Activity, Dumbbell, Target, TrendingUp, Calendar, BarChart3, Bot, LogOut, User } from 'lucide-react'
+import { Activity, Dumbbell, Target, TrendingUp, BarChart3, Bot, LogOut, User } from 'lucide-react'
 import Link from 'next/link'
 
 export default function DashboardPage() {

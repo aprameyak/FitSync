@@ -24,7 +24,7 @@ export const authOptions: NextAuthOptions = {
           }
         })
 
-        if (!user || !user.password) {
+        if (!user?.password) {
           return null
         }
 
@@ -47,8 +47,7 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt'
   },
   pages: {
-    signIn: '/sign-in',
-    signUp: '/sign-up'
+    signIn: '/sign-in'
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -58,7 +57,7 @@ export const authOptions: NextAuthOptions = {
       return token
     },
     async session({ session, token }) {
-      if (token) {
+      if (token && session.user) {
         session.user.id = token.id as string
       }
       return session

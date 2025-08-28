@@ -14,6 +14,8 @@ interface Message {
 
 interface ChatInterfaceProps {
   userContext?: {
+    name?: string
+    email?: string
     age?: number
     weight?: number
     height?: number
@@ -22,7 +24,7 @@ interface ChatInterfaceProps {
   }
 }
 
-export default function ChatInterface({ userContext }: ChatInterfaceProps) {
+export default function ChatInterface({ userContext }: Readonly<ChatInterfaceProps>) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -102,6 +104,7 @@ export default function ChatInterface({ userContext }: ChatInterfaceProps) {
         setMessages(prev => [...prev, errorMessage])
       }
     } catch (error) {
+      console.error('Chat error:', error)
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: 'Sorry, I encountered an error. Please try again.',
@@ -198,7 +201,7 @@ export default function ChatInterface({ userContext }: ChatInterfaceProps) {
           <textarea
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyPress}
             placeholder="Ask me about fitness, nutrition, or workouts..."
             className="flex-1 resize-none border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             rows={1}
