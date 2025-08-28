@@ -14,17 +14,7 @@ export const metadata: Metadata = {
   authors: [{ name: 'FitSync Team' }],
   creator: 'FitSync',
   icons: {
-    icon: [
-      {
-        url: '/favicon.ico',
-        sizes: 'any',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-touch-icon.png',
+    icon: '/icon.svg',
   },
   openGraph: {
     type: 'website',
@@ -52,6 +42,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="h-full">
+      <head>
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+      </head>
       <body className={`${inter.className} h-full antialiased`}>
         {children}
       </body>
