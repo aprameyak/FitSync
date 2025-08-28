@@ -11,22 +11,74 @@ datasource db {
   directUrl = env("DIRECT_DATABASE_URL")
 }
 
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  image     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // BMR and Profile Data
+  age           Int?
+  gender        String?   // "male", "female", "other"
+  height        Float?    // in cm
+  weight        Float?    // in kg
+  activityLevel String?   // "sedentary", "light", "moderate", "active", "very_active"
+  bmr           Float?    // calculated BMR
+  tdee          Float?    // Total Daily Energy Expenditure
 
   // Relations
-  workouts    Workout[]
-  exercises   Exercise[]
-  nutrition   Nutrition[]
-  goals       Goal[]
-  progress    Progress[]
+  accounts      Account[]
+  sessions      Session[]
+  workouts      Workout[]
+  exercises     Exercise[]
+  nutrition     Nutrition[]
+  goals         Goal[]
+  progress      Progress[]
 
   @@map("users")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
 }
 
 model Workout {

@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button'
-import { Activity, Dumbbell, Target, TrendingUp, Calendar, BarChart3 } from 'lucide-react'
+import { Activity, Dumbbell, Target, TrendingUp, Calendar, BarChart3, Bot } from 'lucide-react'
+import Link from 'next/link'
 
 export default function HomePage() {
   return (
@@ -27,6 +28,13 @@ export default function HomePage() {
               <a href="#progress" className="text-gray-600 hover:text-gray-900 transition-colors">
                 Progress
               </a>
+              <Link 
+                href="/chat" 
+                className="text-gray-600 hover:text-gray-900 transition-colors flex items-center space-x-1"
+              >
+                <Bot className="h-4 w-4" />
+                <span>AI Coach</span>
+              </Link>
             </nav>
             <div className="flex items-center space-x-3">
               <Button variant="outline" size="sm">Sign In</Button>
@@ -157,6 +165,22 @@ export default function HomePage() {
                 <div className="bg-orange-600 h-2 rounded-full" style={{ width: '92%' }}></div>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* AI Coach CTA */}
+        <section className="mt-8 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg p-6 text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold mb-2">Need Fitness Advice?</h2>
+              <p className="text-blue-100">Get personalized guidance from our AI coach powered by Gemini</p>
+            </div>
+            <Link href="/chat">
+              <Button variant="secondary" size="lg" className="bg-white text-blue-600 hover:bg-gray-100">
+                <Bot className="h-5 w-5 mr-2" />
+                Chat with AI Coach
+              </Button>
+            </Link>
           </div>
         </section>
       </main>
