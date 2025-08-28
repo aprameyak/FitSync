@@ -14,8 +14,6 @@ interface Message {
 
 interface ChatInterfaceProps {
   userContext?: {
-    name?: string
-    email?: string
     age?: number
     weight?: number
     height?: number

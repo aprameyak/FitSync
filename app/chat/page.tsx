@@ -1,15 +1,24 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
+import { useEffect } from 'react'
+import { useAuth } from '../context/AuthContext'
+import { useRouter } from 'next/navigation'
 import ChatInterface from '@/components/chat/ChatInterface'
 import { Button } from '@/components/ui/button'
 import { Bot, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
 export default function ChatPage() {
-  const { data: session, status } = useSession()
+  const { user, loading } = useAuth()
+  const router = useRouter()
 
-  if (status === 'loading') {
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/sign-in')
+    }
+  }, [user, loading, router])
+
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -20,46 +29,38 @@ export default function ChatPage() {
     )
   }
 
-  if (!session) {
-    return null // This shouldn't happen due to middleware, but just in case
+  if (!user) {
+    return null
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
+          {/* Header */}
           <div className="mb-6">
             <div className="flex items-center space-x-4 mb-4">
-              <Link href="/">
-                <Button variant="ghost" size="sm" className="flex items-center space-x-2">
-                  <ArrowLeft className="h-4 w-4" />
-                  <span>Back to Dashboard</span>
+              <Link href="/dashboard">
+                <Button variant="ghost" size="sm">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Dashboard
                 </Button>
               </Link>
             </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
-                <Bot className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">AI Coach Chat</h1>
-                <p className="text-gray-600">
-                  Ask me anything about fitness, nutrition, workouts, or health goals
-                </p>
-              </div>
-            </div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">AI Coach Chat</h1>
+            <p className="text-gray-600">
+              Ask me anything about fitness, nutrition, workouts, or health goals
+            </p>
           </div>
           
           <div className="h-[600px]">
             <ChatInterface 
               userContext={{
-                name: session.user?.name || 'User',
-                email: session.user?.email || '',
-                age: 25, // This should come from user profile
-                weight: 70, // This should come from user profile
-                height: 175, // This should come from user profile
-                activityLevel: 'moderate', // This should come from user profile
-                goals: 'Build muscle and improve strength' // This should come from user profile
+                age: 25, // This would come from user profile
+                weight: 70,
+                height: 175,
+                activityLevel: 'moderate',
+                goals: 'Build muscle and improve strength'
               }}
             />
           </div>

@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import { SessionProvider } from 'next-auth/react'
-import { AuthProvider } from './context/AuthContext'
+import { SessionProvider } from '@/components/SessionProvider'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -49,9 +48,7 @@ export default function RootLayout({
       </head>
       <body className={`${inter.className} h-full antialiased`}>
         <SessionProvider>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
+          {children}
         </SessionProvider>
       </body>
     </html>
