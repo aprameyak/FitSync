@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Send, Bot, User, Loader2 } from 'lucide-react'
+import { Part } from '@google/generative-ai'
 
 interface Message {
   id: string
@@ -12,8 +13,9 @@ interface Message {
 }
 
 interface ChatInterfaceProps {
-  apiKey: string
   userContext?: {
+    name?: string
+    email?: string
     age?: number
     weight?: number
     height?: number
@@ -22,7 +24,7 @@ interface ChatInterfaceProps {
   }
 }
 
-export default function ChatInterface({ apiKey, userContext }: ChatInterfaceProps) {
+export default function ChatInterface({ userContext }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -58,6 +60,18 @@ export default function ChatInterface({ apiKey, userContext }: ChatInterfaceProp
     setIsLoading(true)
 
     try {
+      // Convert messages to Gemini format
+      const conversationHistory: Array<{ role: 'user' | 'model'; parts: Part[] }> = []
+      
+      // Add previous messages to history (skip the welcome message)
+      for (let i = 1; i < messages.length; i++) {
+        const msg = messages[i]
+        conversationHistory.push({
+          role: msg.role === 'user' ? 'user' : 'model',
+          parts: [{ text: msg.content }]
+        })
+      }
+
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -65,12 +79,8 @@ export default function ChatInterface({ apiKey, userContext }: ChatInterfaceProp
         },
         body: JSON.stringify({
           message: inputMessage,
-          apiKey,
           userContext,
-          conversationHistory: messages.map(msg => ({
-            role: msg.role,
-            parts: msg.content
-          }))
+          conversationHistory
         }),
       })
 

@@ -1,8 +1,28 @@
+'use client'
+
+import { useSession, signOut } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
-import { Activity, Dumbbell, Target, TrendingUp, Calendar, BarChart3, Bot } from 'lucide-react'
+import { Activity, Dumbbell, Target, TrendingUp, Calendar, BarChart3, Bot, LogOut, User } from 'lucide-react'
 import Link from 'next/link'
 
 export default function HomePage() {
+  const { data: session, status } = useSession()
+
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!session) {
+    return null // This shouldn't happen due to middleware, but just in case
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -37,8 +57,19 @@ export default function HomePage() {
               </Link>
             </nav>
             <div className="flex items-center space-x-3">
-              <Button variant="outline" size="sm">Sign In</Button>
-              <Button size="sm">Sign Up</Button>
+              <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <User className="h-4 w-4" />
+                <span>{session.user?.name || session.user?.email}</span>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => signOut({ callbackUrl: '/sign-in' })}
+                className="flex items-center space-x-1"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>Sign Out</span>
+              </Button>
             </div>
           </div>
         </div>
@@ -48,7 +79,9 @@ export default function HomePage() {
       <main className="container mx-auto px-4 py-8">
         {/* Welcome Section */}
         <section className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, User</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Welcome back, {session.user?.name || 'User'}!
+          </h1>
           <p className="text-gray-600">Track your fitness journey and stay motivated</p>
         </section>
 
@@ -58,7 +91,7 @@ export default function HomePage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Today's Calories</p>
-                <p className="text-2xl font-bold text-gray-900">1,847</p>
+                <p className="text-2xl font-bold text-gray-900">0</p>
               </div>
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                 <Activity className="h-6 w-6 text-blue-600" />
@@ -70,7 +103,7 @@ export default function HomePage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Workouts This Week</p>
-                <p className="text-2xl font-bold text-gray-900">4</p>
+                <p className="text-2xl font-bold text-gray-900">0</p>
               </div>
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                 <Dumbbell className="h-6 w-6 text-green-600" />
@@ -82,7 +115,7 @@ export default function HomePage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Current Weight</p>
-                <p className="text-2xl font-bold text-gray-900">165 lbs</p>
+                <p className="text-2xl font-bold text-gray-900">--</p>
               </div>
               <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                 <Target className="h-6 w-6 text-purple-600" />
@@ -94,7 +127,7 @@ export default function HomePage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Weekly Goal</p>
-                <p className="text-2xl font-bold text-gray-900">85%</p>
+                <p className="text-2xl font-bold text-gray-900">0%</p>
               </div>
               <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
                 <TrendingUp className="h-6 w-6 text-orange-600" />
@@ -111,26 +144,10 @@ export default function HomePage() {
               <Button variant="ghost" size="sm">View All</Button>
             </div>
             <div className="space-y-4">
-              <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                <Calendar className="h-5 w-5 text-blue-600" />
-                <div className="flex-1">
-                  <p className="font-medium text-gray-900">Upper Body Strength</p>
-                  <p className="text-sm text-gray-600">Yesterday • 45 minutes</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                <Calendar className="h-5 w-5 text-green-600" />
-                <div className="flex-1">
-                  <p className="font-medium text-gray-900">Cardio Session</p>
-                  <p className="text-sm text-gray-600">2 days ago • 30 minutes</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                <Calendar className="h-5 w-5 text-purple-600" />
-                <div className="flex-1">
-                  <p className="font-medium text-gray-900">Lower Body Focus</p>
-                  <p className="text-sm text-gray-600">3 days ago • 50 minutes</p>
-                </div>
+              <div className="text-center py-8 text-gray-500">
+                <Dumbbell className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>No workouts yet</p>
+                <p className="text-sm">Start your fitness journey today!</p>
               </div>
             </div>
           </div>
@@ -141,28 +158,10 @@ export default function HomePage() {
               <Button variant="ghost" size="sm">View Details</Button>
             </div>
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Weight Goal</span>
-                <span className="text-sm font-medium text-gray-900">160 lbs</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-blue-600 h-2 rounded-full" style={{ width: '75%' }}></div>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Weekly Workouts</span>
-                <span className="text-sm font-medium text-gray-900">4/5</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-green-600 h-2 rounded-full" style={{ width: '80%' }}></div>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Calorie Goal</span>
-                <span className="text-sm font-medium text-gray-900">1,847/2,000</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-orange-600 h-2 rounded-full" style={{ width: '92%' }}></div>
+              <div className="text-center py-8 text-gray-500">
+                <BarChart3 className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>No progress data yet</p>
+                <p className="text-sm">Track your first workout to see progress!</p>
               </div>
             </div>
           </div>

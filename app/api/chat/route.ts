@@ -3,12 +3,15 @@ import { chatWithGemini, getFitnessAdvice } from '@/lib/gemini'
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, apiKey, userContext, conversationHistory } = await request.json()
+    const { message, userContext, conversationHistory } = await request.json()
+
+    // Get API key from environment variables
+    const apiKey = process.env.GEMINI_API_KEY
 
     if (!apiKey) {
       return NextResponse.json(
-        { error: 'API key is required' },
-        { status: 400 }
+        { error: 'Gemini API key not configured. Please set GEMINI_API_KEY in your environment variables.' },
+        { status: 500 }
       )
     }
 
