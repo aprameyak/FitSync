@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { chatWithGemini, getFitnessAdvice } from '@/lib/gemini'
+import { getUserId, unauthorized } from '@/lib/session'
 
 export async function POST(request: NextRequest) {
+  if (!(await getUserId())) return unauthorized()
+
   try {
     const { message, userContext, conversationHistory } = await request.json()
 
