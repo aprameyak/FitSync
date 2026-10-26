@@ -16,7 +16,7 @@ export async function chatWithGemini(
 ) {
   try {
     const genAI = initializeGemini(apiKey)
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.8-flash' })
 
     // Create chat session
     const chat = model.startChat({
