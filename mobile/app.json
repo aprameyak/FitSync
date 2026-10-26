@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "FitSync",
+    "slug": "fitsync",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.aprameyak.fitsync"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#2563EB",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "com.aprameyak.fitsync"
+    },
+    "plugins": [
+      "expo-secure-store"
+    ],
+    "scheme": "fitsync"
+  }
+}
