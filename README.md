@@ -2,7 +2,7 @@
 
 FitSync is a fitness tracker for logging meals and body weight, calculating daily calorie needs, and asking an AI coach for advice. It ships as a Next.js web app and an Expo mobile app that share the same API and accounts.
 
-Live site: https://fitsyncfix.vercel.app
+Live site: https://fitsync.aprameyak.workers.dev
 
 ## Features
 
@@ -53,7 +53,7 @@ npm install
 npx expo start
 ```
 
-The mobile app talks to `https://fitsyncfix.vercel.app` by default. To point it at a local server, set `EXPO_PUBLIC_API_URL`, for example `EXPO_PUBLIC_API_URL=http://192.168.1.10:3000 npx expo start`.
+The mobile app talks to `https://fitsync.aprameyak.workers.dev` by default. To point it at a local server, set `EXPO_PUBLIC_API_URL`, for example `EXPO_PUBLIC_API_URL=http://192.168.1.10:3000 npx expo start`.
 
 There are no automated tests. CI (`.github/workflows/ci.yml`) runs `npm run build` for the web app, and `npm run typecheck` plus `npx expo export` for the mobile app.
 
