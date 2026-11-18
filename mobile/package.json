@@ -25,5 +25,9 @@
     "ios": "expo start --ios",
     "typecheck": "tsc --noEmit"
   },
-  "private": true
+  "private": true,
+  "overrides": {
+    "glob@^13.0.0": "^14.0.2",
+    "minimatch@^10.0.0": "^11.0.1"
+  }
 }
