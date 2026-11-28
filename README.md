@@ -53,7 +53,7 @@ npm install
 npx expo start
 ```
 
-The mobile app talks to `https://fitsync.aprameyak.workers.dev` by default. To point it at a local server, set `EXPO_PUBLIC_API_URL`, for example `EXPO_PUBLIC_API_URL=http://192.168.1.10:3000 npx expo start`.
+The mobile app talks to `https://fitsync.aprameyakannan.com` by default. To point it at a local server, set `EXPO_PUBLIC_API_URL`, for example `EXPO_PUBLIC_API_URL=http://192.168.1.10:3000 npx expo start`.
 
 There are no automated tests. CI (`.github/workflows/ci.yml`) runs `npm run build` for the web app, and `npm run typecheck` plus `npx expo export` for the mobile app.
 
