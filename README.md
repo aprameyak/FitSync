@@ -2,7 +2,7 @@
 
 FitSync is a fitness tracker for logging meals and body weight, calculating daily calorie needs, and asking an AI coach for advice. It ships as a Next.js web app and an Expo mobile app that share the same API and accounts.
 
-Live site: https://fitsync.aprameyak.workers.dev
+Live site: https://fitsync.aprameyakannan.com
 
 ## Features
 
